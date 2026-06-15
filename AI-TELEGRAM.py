@@ -4,7 +4,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, ContextTyp
 
 # ================= CONFIG =================
 BOT_TOKEN = "8956812650:AAEqBvxxOeKOfAKS75joYUQLDjznI4mglw4"
-OPENROUTER_API_KEY = "MDk5NjYzODk1ODM6cXcxMzI5MTMyOQ=="
+OPENROUTER_API_KEY = "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"
 
 ADMIN_ID = 8493963275
 
