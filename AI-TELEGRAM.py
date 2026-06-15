@@ -1,11 +1,20 @@
 import requests
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    MessageHandler,
+    ContextTypes,
+    filters
+)
 
 BOT_TOKEN = "8956812650:AAEqBvxxOeKOfAKS75joYUQLDjznI4mglw4"
 OPENROUTER_API_KEY = "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"
+ADMIN_ID = 8493963275
 
-# 🤖 AI
+users = set()
+
+# ---------------- AI ----------------
 def ask_ai(text):
     r = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
@@ -16,39 +25,89 @@ def ask_ai(text):
         json={
             "model": "openai/gpt-4o-mini",
             "messages": [
-                {"role": "system", "content": "تو یک دستیار فارسی هستی"},
+                {"role": "system", "content": "تو یک دستیار فارسی حرفه‌ای هستی"},
                 {"role": "user", "content": text}
             ]
-        }
+        },
+        timeout=60
     )
-    return r.json()["choices"][0]["message"]["content"]
 
-# 🚀 start
+    data = r.json()
+    return data["choices"][0]["message"]["content"]
+
+# ---------------- Commands ----------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🤖 ربات روشنه\nپیام بده")
+    users.add(update.effective_user.id)
 
-# 🧠 فقط پیام عادی
-async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text
+    await update.message.reply_text(
+        "🤖 سلام\n\n"
+        "من ربات هوش مصنوعی هستم.\n\n"
+        "/help"
+    )
 
-    # 🚫 دستورها رد شوند
-    if text.startswith("/"):
+async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "📚 دستورات:\n\n"
+        "/start\n"
+        "/help\n"
+        "/stats\n"
+        "/panel"
+    )
+
+async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        f"👥 تعداد کاربران: {len(users)}"
+    )
+
+async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if update.effective_user.id != ADMIN_ID:
+        await update.message.reply_text("⛔ دسترسی نداری")
         return
 
-    try:
-        answer = ask_ai(text)
-        await update.message.reply_text(answer)
-    except Exception as e:
-        await update.message.reply_text(str(e))
+    await update.message.reply_text(
+        "👑 پنل مدیریت\n\n"
+        f"کاربران: {len(users)}"
+    )
 
-# ================= RUN =================
+# ---------------- Chat ----------------
+async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    users.add(update.effective_user.id)
+
+    text = update.message.text
+
+    try:
+        wait_msg = await update.message.reply_text(
+            "⏳ درحال پردازش..."
+        )
+
+        answer = ask_ai(text)
+
+        await wait_msg.edit_text(answer[:4000])
+
+    except Exception as e:
+        await update.message.reply_text(
+            f"❌ خطا:\n{e}"
+        )
+
+# ---------------- Run ----------------
 app = Application.builder().token(BOT_TOKEN).build()
 
-# ⚡ مهم: اول دستورها
 app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("help", help_cmd))
+app.add_handler(CommandHandler("stats", stats))
+app.add_handler(CommandHandler("panel", panel))
 
-# ⚡ فقط پیام معمولی
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat))
+app.add_handler(
+    MessageHandler(
+        filters.TEXT & ~filters.COMMAND,
+        chat
+    )
+)
 
 print("🤖 Bot Started")
-app.run_polling()
+
+app.run_polling(
+    allowed_updates=Update.ALL_TYPES
+)
