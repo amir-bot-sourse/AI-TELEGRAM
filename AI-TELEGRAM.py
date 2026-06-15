@@ -8,111 +8,97 @@ from telegram.ext import (
     filters
 )
 
-# ================= تنظیمات =================
-
 BOT_TOKEN = "8956812650:AAEqBvxxOeKOfAKS75joYUQLDjznI4mglw4"
 OPENROUTER_API_KEY = "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"
-
 ADMIN_ID = 8493963275
 
-# ================= AI =================
+users = set()
 
+# ---------------- AI ----------------
 def ask_ai(text):
-    try:
-        r = requests.post(
-            "https://openrouter.ai/api/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-                "Content-Type": "application/json"
-            },
-            json={
-                "model": "openai/gpt-4o-mini",
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": "تو یک دستیار فارسی حرفه‌ای هستی."
-                    },
-                    {
-                        "role": "user",
-                        "content": text
-                    }
-                ]
-            },
-            timeout=60
-        )
+    r = requests.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "model": "openai/gpt-4o-mini",
+            "messages": [
+                {"role": "system", "content": "تو یک دستیار فارسی حرفه‌ای هستی"},
+                {"role": "user", "content": text}
+            ]
+        },
+        timeout=60
+    )
 
-        data = r.json()
+    data = r.json()
+    return data["choices"][0]["message"]["content"]
 
-        if "choices" not in data:
-            return f"خطا:\n{data}"
-
-        return data["choices"][0]["message"]["content"]
-
-    except Exception as e:
-        return f"خطا:\n{e}"
-
-# ================= دستورات =================
-
+# ---------------- Commands ----------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    users.add(update.effective_user.id)
+
     await update.message.reply_text(
-        "🤖 سلام!\n\n"
+        "🤖 سلام\n\n"
         "من ربات هوش مصنوعی هستم.\n\n"
-        "دستورات:\n"
-        "/help\n"
-        "/panel"
+        "/help"
     )
 
 async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "📚 راهنما\n\n"
-        "/start = شروع\n"
-        "/help = راهنما\n"
-        "/panel = پنل مدیریت"
+        "📚 دستورات:\n\n"
+        "/start\n"
+        "/help\n"
+        "/stats\n"
+        "/panel"
+    )
+
+async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        f"👥 تعداد کاربران: {len(users)}"
     )
 
 async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.effective_user.id != ADMIN_ID:
-        await update.message.reply_text(
-            "⛔ شما ادمین نیستید"
-        )
+        await update.message.reply_text("⛔ دسترسی نداری")
         return
 
     await update.message.reply_text(
         "👑 پنل مدیریت\n\n"
-        "ربات فعال است."
+        f"کاربران: {len(users)}"
     )
 
-# ================= چت AI =================
-
+# ---------------- Chat ----------------
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    users.add(update.effective_user.id)
 
     text = update.message.text
 
-    if text.startswith("/"):
-        return
-
-    msg = await update.message.reply_text(
-        "⏳ درحال فکر کردن..."
-    )
-
-    answer = ask_ai(text)
-
     try:
-        await msg.edit_text(answer[:4000])
-    except:
-        await update.message.reply_text(answer[:4000])
+        wait_msg = await update.message.reply_text(
+            "⏳ درحال پردازش..."
+        )
 
-# ================= اجرا =================
+        answer = ask_ai(text)
 
+        await wait_msg.edit_text(answer[:4000])
+
+    except Exception as e:
+        await update.message.reply_text(
+            f"❌ خطا:\n{e}"
+        )
+
+# ---------------- Run ----------------
 app = Application.builder().token(BOT_TOKEN).build()
 
-# دستورات
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("help", help_cmd))
+app.add_handler(CommandHandler("stats", stats))
 app.add_handler(CommandHandler("panel", panel))
 
-# هوش مصنوعی
 app.add_handler(
     MessageHandler(
         filters.TEXT & ~filters.COMMAND,
@@ -122,4 +108,6 @@ app.add_handler(
 
 print("🤖 Bot Started")
 
-app.run_polling()
+app.run_polling(
+    allowed_updates=Update.ALL_TYPES
+)
