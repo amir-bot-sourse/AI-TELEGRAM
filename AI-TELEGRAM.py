@@ -5,13 +5,14 @@ from telegram.ext import Application, CommandHandler, MessageHandler, ContextTyp
 # ================= CONFIG =================
 BOT_TOKEN = "8956812650:AAEqBvxxOeKOfAKS75joYUQLDjznI4mglw4"
 OPENROUTER_API_KEY = "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"
+
 ADMIN_ID = 8493963275
 
-ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "1234"
+ADMIN_USER = "admin"
+ADMIN_PASS = "1234"
 
 users = set()
-logged_admins = set()
+logged_admin = set()
 
 # ================= AI =================
 def ask_ai(text):
@@ -34,24 +35,25 @@ def ask_ai(text):
 
         data = r.json()
 
-        # 🛑 اگر API خطا داد
+        # جلوگیری از کرش
         if "choices" not in data:
-            return f"❌ API Error:\n{data}"
+            return f"❌ API ERROR:\n{data}"
 
         return data["choices"][0]["message"]["content"]
 
     except Exception as e:
-        return f"❌ Request Error: {e}"
+        return f"❌ ERROR:\n{e}"
 
 
-# ================= COMMANDS =================
+# ================= START =================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     users.add(update.effective_user.id)
     await update.message.reply_text(
-        "🤖 ربات روشن است\n/help برای راهنما"
+        "🤖 ربات روشن شد\n\n/start\n/help\n/login"
     )
 
 
+# ================= HELP =================
 async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "/start\n/help\n/login username password\n/panel"
@@ -64,19 +66,19 @@ async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ /login username password")
         return
 
-    username, password = context.args
+    u, p = context.args
 
-    if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-        logged_admins.add(update.effective_user.id)
+    if u == ADMIN_USER and p == ADMIN_PASS:
+        logged_admin.add(update.effective_user.id)
         await update.message.reply_text("✅ وارد پنل شدی")
     else:
-        await update.message.reply_text("⛔ اطلاعات اشتباه")
+        await update.message.reply_text("⛔ اشتباهه")
 
 
 # ================= PANEL =================
 async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    if update.effective_user.id not in logged_admins:
+    if update.effective_user.id not in logged_admin:
         await update.message.reply_text("⛔ اول لاگین کن")
         return
 
@@ -87,18 +89,18 @@ async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ================= CHAT =================
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    users.add(update.effective_user.id)
-
     text = update.message.text
 
     if text.startswith("/"):
         return
 
-    wait = await update.message.reply_text("⏳ فکر میکنم...")
+    users.add(update.effective_user.id)
+
+    msg = await update.message.reply_text("⏳ درحال فکر کردن...")
 
     answer = ask_ai(text)
 
-    await wait.edit_text(answer[:4000])
+    await msg.edit_text(answer[:4000])
 
 
 # ================= RUN =================
