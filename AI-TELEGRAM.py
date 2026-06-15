@@ -10,11 +10,9 @@ from telegram.ext import (
 
 BOT_TOKEN = "8956812650:AAEqBvxxOeKOfAKS75joYUQLDjznI4mglw4"
 OPENROUTER_API_KEY = "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"
+
 ADMIN_ID = 8493963275
 
-users = set()
-
-# ---------------- AI ----------------
 def ask_ai(text):
     r = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
@@ -35,68 +33,50 @@ def ask_ai(text):
     data = r.json()
     return data["choices"][0]["message"]["content"]
 
-# ---------------- Commands ----------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    users.add(update.effective_user.id)
-
     await update.message.reply_text(
-        "🤖 سلام\n\n"
-        "من ربات هوش مصنوعی هستم.\n\n"
-        "/help"
+        "🤖 ربات آنلاین است\n\n/help"
     )
 
 async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "📚 دستورات:\n\n"
         "/start\n"
         "/help\n"
-        "/stats\n"
-        "/panel"
+        "/panel\n"
+        "/ping"
     )
 
-async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        f"👥 تعداد کاربران: {len(users)}"
-    )
+async def ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🏓 Pong")
 
 async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     if update.effective_user.id != ADMIN_ID:
         await update.message.reply_text("⛔ دسترسی نداری")
         return
 
     await update.message.reply_text(
-        "👑 پنل مدیریت\n\n"
-        f"کاربران: {len(users)}"
+        "👑 پنل مدیریت\n"
+        "ربات فعال است"
     )
 
-# ---------------- Chat ----------------
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    users.add(update.effective_user.id)
-
-    text = update.message.text
-
     try:
-        wait_msg = await update.message.reply_text(
-            "⏳ درحال پردازش..."
-        )
+        text = update.message.text
+
+        msg = await update.message.reply_text("⏳ درحال فکر کردن...")
 
         answer = ask_ai(text)
 
-        await wait_msg.edit_text(answer[:4000])
+        await msg.edit_text(answer[:4000])
 
     except Exception as e:
-        await update.message.reply_text(
-            f"❌ خطا:\n{e}"
-        )
+        await update.message.reply_text(f"خطا:\n{e}")
 
-# ---------------- Run ----------------
 app = Application.builder().token(BOT_TOKEN).build()
 
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("help", help_cmd))
-app.add_handler(CommandHandler("stats", stats))
+app.add_handler(CommandHandler("ping", ping))
 app.add_handler(CommandHandler("panel", panel))
 
 app.add_handler(
@@ -107,7 +87,4 @@ app.add_handler(
 )
 
 print("🤖 Bot Started")
-
-app.run_polling(
-    allowed_updates=Update.ALL_TYPES
-)
+app.run_polling()
