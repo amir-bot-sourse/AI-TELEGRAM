@@ -142,8 +142,8 @@ app.add_handler(
         chat
     )
 )
-
 print("🤖 Bot Started")
+
 web = Flask(__name__)
 
 @web.route("/")
@@ -151,11 +151,15 @@ def home():
     return "Bot Online"
 
 def run_web():
+    print("🔥 FLASK STARTING...")
     web.run(
         host="0.0.0.0",
-        port=int(os.environ.get("PORT", 10000))
+        port=int(os.environ.get("PORT", 10000)),
+        use_reloader=False
     )
 
 Thread(target=run_web, daemon=True).start()
+
+print("🔥 THREAD STARTED")
 
 app.run_polling()
