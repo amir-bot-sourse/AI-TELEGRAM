@@ -3,7 +3,7 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 
 # ================= CONFIG =================
-BOT_TOKEN = "8956812650:AAEqBvxxOeKOfAKS75joYUQLDjznI4mglw4"
+BOT_TOKEN = "BOT_TOKEN"
 OPENROUTER_API_KEY = 
 
 ADMIN_ID = 8493963275
