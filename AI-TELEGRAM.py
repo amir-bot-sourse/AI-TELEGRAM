@@ -12,7 +12,8 @@ from telegram.ext import (
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
-
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "123456")
+logged_admins = set()
 users = set()
 
 # ---------------- AI ----------------
@@ -40,6 +41,30 @@ def ask_ai(text):
 
     return data["choices"][0]["message"]["content"]
 
+async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if update.effective_user.id != ADMIN_ID:
+        await update.message.reply_text("⛔ فقط ادمین")
+        return
+
+    if len(context.args) != 1:
+        await update.message.reply_text(
+            "استفاده:\n/login رمز"
+        )
+        return
+
+    password = context.args[0]
+
+    if password == ADMIN_PASSWORD:
+        logged_admins.add(update.effective_user.id)
+        await update.message.reply_text(
+            "✅ ورود موفق"
+        )
+    else:
+        await update.message.reply_text(
+            "❌ رمز اشتباه"
+        )
+
 # ---------------- Commands ----------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     users.add(update.effective_user.id)
@@ -66,9 +91,11 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    if update.effective_user.id != ADMIN_ID:
-        await update.message.reply_text("⛔ دسترسی نداری")
-        return
+    if update.effective_user.id not in logged_admins:
+    await update.message.reply_text(
+        "🔒 اول /login رمز را وارد کن"
+    )
+    return
 
     await update.message.reply_text(
         "👑 پنل مدیریت\n\n"
@@ -103,6 +130,7 @@ app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("help", help_cmd))
 app.add_handler(CommandHandler("stats", stats))
 app.add_handler(CommandHandler("panel", panel))
+app.add_handler(CommandHandler("login", login)) 
 
 app.add_handler(
     MessageHandler(
