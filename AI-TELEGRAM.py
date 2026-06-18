@@ -94,7 +94,7 @@ async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id not in logged_admins:
         await update.message.reply_text(
         "🔒 اول /login رمز را وارد کن"
-    ۰)
+    )
     return
 
     await update.message.reply_text(
