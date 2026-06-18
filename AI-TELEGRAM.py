@@ -2,6 +2,7 @@ from flask import Flask
 from threading import Thread
 import os
 import requests
+import sqlite3
 from telegram import Update
 from telegram.ext import (
     Application,
@@ -17,7 +18,23 @@ ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "123456")
 logged_admins = set()
 users = set()
+conn = sqlite3.connect("users.db", check_same_thread=False)
+cursor = conn.cursor()
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS users (
+    user_id INTEGER PRIMARY KEY
+)
+""")
+
+conn.commit()
+
+def save_user(user_id):
+    cursor.execute(
+        "INSERT OR IGNORE INTO users (user_id) VALUES (?)",
+        (user_id,)
+    )
+    conn.commit()
 # ---------------- AI ----------------
 def ask_ai(text):
     r = requests.post(
@@ -69,7 +86,7 @@ async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ---------------- Commands ----------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    users.add(update.effective_user.id)
+    save_user(update.effective_user.id)
 
     await update.message.reply_text(
         "🤖 سلام\n\n"
@@ -87,8 +104,12 @@ async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    cursor.execute("SELECT COUNT(*) FROM users")
+    count = cursor.fetchone()[0]
+
     await update.message.reply_text(
-        f"👥 تعداد کاربران: {len(users)}"
+        f"👥 تعداد کاربران: {count}"
     )
 
 async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -99,15 +120,18 @@ async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
+    cursor.execute("SELECT COUNT(*) FROM users")
+    count = cursor.fetchone()[0]
+
     await update.message.reply_text(
         "👑 پنل مدیریت\n\n"
-        f"کاربران: {len(users)}"
+        f"کاربران: {count}"
     )
 
 # ---------------- Chat ----------------
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    users.add(update.effective_user.id)
+    save_user(update.effective_user.id) 
     text = update.message.text
 
     try:
