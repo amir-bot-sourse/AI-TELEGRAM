@@ -3,6 +3,7 @@ from threading import Thread
 import os
 import requests
 import sqlite3
+import sys
 from telegram import Update
 from telegram.ext import (
     Application,
@@ -11,6 +12,10 @@ from telegram.ext import (
     ContextTypes,
     filters
 )
+
+if "RENDER" in os.environ:
+    import os
+    os.environ["PYTHONUNBUFFERED"] = "1"
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
@@ -121,20 +126,20 @@ async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cursor.execute("SELECT COUNT(*) FROM users")
     users_count = cursor.fetchone()[0]
 
-    msg = f"""
-msg = (
-    "👑 ── پنل مدیریت ── 👑\n\n"
-    f"👥 کاربران: {users_count}\n"
-    "🤖 وضعیت: آنلاین\n"
-    "⚡ AI: فعال\n"
-    "🧠 دیتابیس: SQLite\n\n"
-    "📊 منو:\n"
-    "/stats\n"
-    "/broadcast (بعداً)\n"
-    "/ban (بعداً)"
-"""
-
-    await update.message.reply_text(msg)# ---------------- Chat ----------------
+    msg = (
+        "👑 ── پنل مدیریت ── 👑\n\n"
+        f"👥 کاربران: {users_count}\n"
+        "🤖 وضعیت: آنلاین\n"
+        "⚡ AI: فعال\n"
+        "🧠 دیتابیس: SQLite\n\n"
+        "📊 منو:\n"
+        "/stats\n"
+        "/broadcast (بعداً)\n"
+        "/ban (بعداً)"
+    )
+    
+    await update.message.reply_text(msg)
+    # ---------------- Chat ----------------
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     save_user(update.effective_user.id) 
