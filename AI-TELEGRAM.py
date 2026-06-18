@@ -192,4 +192,4 @@ Thread(target=run_web, daemon=True).start()
 
 print("🔥 THREAD STARTED")
 
-app.run_polling()
+app.run_polling(drop_pending_updates=True)
