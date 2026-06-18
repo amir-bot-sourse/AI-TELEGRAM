@@ -93,9 +93,9 @@ async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.effective_user.id not in logged_admins:
         await update.message.reply_text(
-        "🔒 اول /login رمز را وارد کن"
-    )
-    return
+            "🔒 اول /login رمز را وارد کن"
+        )
+        return
 
     await update.message.reply_text(
         "👑 پنل مدیریت\n\n"
@@ -106,17 +106,19 @@ async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     users.add(update.effective_user.id)
-
     text = update.message.text
 
     try:
-        wait_msg = await update.message.reply_text(
-            "⏳ درحال پردازش..."
+        from telegram.constants import ChatAction
+
+        await context.bot.send_chat_action(
+            chat_id=update.effective_chat.id,
+            action=ChatAction.TYPING
         )
 
         answer = ask_ai(text)
 
-        await wait_msg.edit_text(answer[:4000])
+        await update.message.reply_text(answer[:4000])
 
     except Exception as e:
         await update.message.reply_text(
