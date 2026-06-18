@@ -156,5 +156,6 @@ def run_web():
         port=int(os.environ.get("PORT", 10000))
     )
 
-Thread(target=run_web).start()
+Thread(target=run_web, daemon=True).start()
+
 app.run_polling()
