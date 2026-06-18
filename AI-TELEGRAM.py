@@ -1,3 +1,5 @@
+from flask import Flask
+from threading import Thread
 import os
 import requests
 from telegram import Update
@@ -142,5 +144,17 @@ app.add_handler(
 )
 
 print("🤖 Bot Started")
+web = Flask(__name__)
 
+@web.route("/")
+def home():
+    return "Bot Online"
+
+def run_web():
+    web.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 10000))
+    )
+
+Thread(target=run_web).start()
 app.run_polling()
