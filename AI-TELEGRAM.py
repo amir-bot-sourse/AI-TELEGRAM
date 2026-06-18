@@ -115,20 +115,26 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.effective_user.id not in logged_admins:
-        await update.message.reply_text(
-            "🔒 اول /login رمز را وارد کن"
-        )
+        await update.message.reply_text("🔒 اول /login رمز را وارد کن")
         return
 
     cursor.execute("SELECT COUNT(*) FROM users")
-    count = cursor.fetchone()[0]
+    users_count = cursor.fetchone()[0]
 
-    await update.message.reply_text(
-        "👑 پنل مدیریت\n\n"
-        f"کاربران: {count}"
-    )
+    msg = f"""
+msg = (
+    "👑 ── پنل مدیریت ── 👑\n\n"
+    f"👥 کاربران: {users_count}\n"
+    "🤖 وضعیت: آنلاین\n"
+    "⚡ AI: فعال\n"
+    "🧠 دیتابیس: SQLite\n\n"
+    "📊 منو:\n"
+    "/stats\n"
+    "/broadcast (بعداً)\n"
+    "/ban (بعداً)"
+"""
 
-# ---------------- Chat ----------------
+    await update.message.reply_text(msg)# ---------------- Chat ----------------
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     save_user(update.effective_user.id) 
