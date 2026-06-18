@@ -161,7 +161,46 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             f"❌ خطا:\n{e}"
         )
+async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
+    if update.effective_user.id not in logged_admins:
+        await update.message.reply_text("⛔ فقط ادمین")
+        return
+
+    text = " ".join(context.args)
+
+    if not text:
+        await update.message.reply_text("استفاده:\n/broadcast پیام")
+        return
+
+    cursor.execute("SELECT user_id FROM users")
+    users_list = cursor.fetchall()
+
+    total = len(users_list)
+    sent = 0
+    failed = 0
+
+    msg = await update.message.reply_text(
+        f"📢 شروع ارسال...\n👥 تعداد: {total}"
+    )
+
+    for user in users_list:
+        try:
+            await context.bot.send_message(
+                chat_id=user[0],
+                text=f"📢 پیام جدید:\n\n{text}"
+            )
+            sent += 1
+
+        except Exception:
+            failed += 1
+
+    await msg.edit_text(
+        f"✅ پایان ارسال\n\n"
+        f"👥 کل: {total}\n"
+        f"✔ ارسال موفق: {sent}\n"
+        f"❌ ناموفق: {failed}"
+    )
 # ---------------- Run ----------------
 app = Application.builder().token(BOT_TOKEN).build()
 
@@ -170,6 +209,7 @@ app.add_handler(CommandHandler("help", help_cmd))
 app.add_handler(CommandHandler("stats", stats))
 app.add_handler(CommandHandler("panel", panel))
 app.add_handler(CommandHandler("login", login)) 
+app.add_handler(CommandHandler("broadcast", broadcast))
 
 app.add_handler(
     MessageHandler(
