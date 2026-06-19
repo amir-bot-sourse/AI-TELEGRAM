@@ -147,8 +147,8 @@ async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-        query = update.callback_query
-        await query.answer()
+    query = update.callback_query
+    await query.answer()
 
     user_id = query.from_user.id
 
@@ -162,14 +162,19 @@ async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
         cursor.execute("SELECT COUNT(*) FROM users")
         count = cursor.fetchone()[0]
 
-        await query.edit_message_text(f"👥 تعداد کاربران: {count}")
+        await query.edit_message_text(
+            f"👥 تعداد کاربران: {count}"
+        )
 
     elif data == "broadcast":
-        await query.edit_message_text("📢 برای ارسال پیام بزن:\n/broadcast پیام")
+        await query.edit_message_text(
+            "📢 برای ارسال پیام:\n\n/broadcast متن پیام"
+        )
 
     elif data == "reload":
-        await query.edit_message_text("🔄 پنل آپدیت شد")
-        
+        await query.edit_message_text(
+            "✅ پنل بروزرسانی شد"
+        )        
     # ---------------- Chat ----------------
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -235,13 +240,13 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ---------------- Run ----------------
 app = Application.builder().token(BOT_TOKEN).build()
 
-app = Application.builder().token(BOT_TOKEN).build()app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("help", help_cmd))
 app.add_handler(CommandHandler("stats", stats))
 app.add_handler(CommandHandler("panel", panel))
-app.add_handler(CommandHandler("login", login)) 
+app.add_handler(CommandHandler("login", login))
 app.add_handler(CommandHandler("broadcast", broadcast))
-app.add_handler(CallbackQueryHandler(button_handler))
+app.add_handler(CallbackQueryHandler(button_handler))app.add_handler(CallbackQueryHandler(button_handler))
 
 app.add_handler(
     MessageHandler(
