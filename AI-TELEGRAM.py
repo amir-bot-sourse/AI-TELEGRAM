@@ -119,6 +119,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"👥 تعداد کاربران: {count}"
     )
 
+
 async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user_id = update.effective_user.id
@@ -137,16 +138,14 @@ async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-          
-    
-    
-         await update.message.reply_text(
-    f"👑 پنل ادمین حرفه‌ای\n\n"
-    f"👥 کاربران: {users_count}\n"
-    f"⚡ وضعیت: آنلاین\n\n"
-    "👇 یکی از گزینه‌ها را انتخاب کنید:",
-    reply_markup=reply_markup
-)
+
+    await update.message.reply_text(
+        f"👑 پنل ادمین حرفه‌ای\n\n"
+        f"👥 کاربران: {users_count}\n"
+        f"⚡ وضعیت: آنلاین\n\n"
+        "👇 یکی از گزینه‌ها را انتخاب کنید:",
+        reply_markup=reply_markup
+    )
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -198,9 +197,13 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.effective_user.id not in logged_admins:
-        await update.message.reply_text("⛔ فقط ادمین")
-        return
-
+        if (
+    update.effective_user.id not in logged_admins
+    and update.effective_user.id != ADMIN_ID
+):
+    await update.message.reply_text("⛔ فقط ادمین")
+    return
+    
     text = " ".join(context.args)
 
     if not text:
