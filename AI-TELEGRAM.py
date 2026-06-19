@@ -1,5 +1,9 @@
 from flask import Flask
 from threading import Thread
+from telegram import Update
+from flask import Flask, request
+import asyncio
+import json
 import os
 import requests
 import sqlite3
@@ -374,6 +378,20 @@ web = Flask(__name__)
 def home():
     return "Bot Online"
 
+@web.post(f"/{BOT_TOKEN}")
+def webhook():
+
+    update = Update.de_json(
+        request.get_json(force=True),
+        app.bot
+    )
+
+    asyncio.run(
+        app.process_update(update)
+    )
+
+    return "ok"
+
 def run_web():
     print("🔥 FLASK STARTING...")
     web.run(
@@ -382,8 +400,20 @@ def run_web():
         use_reloader=False
     )
 
-Thread(target=run_web, daemon=True).start()
+print("🔥 WEBHOOK MODE")
 
-print("🔥 THREAD STARTED")
+web.run(
+    host="0.0.0.0",
+    port=int(os.environ.get("PORT", 10000))
+)
 
-app.run_polling(drop_pending_updates=True)
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+
+async def setup_webhook():
+    await app.bot.set_webhook(
+        url=f"{WEBHOOK_URL}/{BOT_TOKEN}"
+    )
+
+asyncio.run(app.initialize())
+asyncio.run(setup_webhook())
+
