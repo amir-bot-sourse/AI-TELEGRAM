@@ -235,7 +235,7 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ---------------- Run ----------------
 app = Application.builder().token(BOT_TOKEN).build()
 
-app.add_handler(CommandHandler("start", start))
+app = Application.builder().token(BOT_TOKEN).build()app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("help", help_cmd))
 app.add_handler(CommandHandler("stats", stats))
 app.add_handler(CommandHandler("panel", panel))
