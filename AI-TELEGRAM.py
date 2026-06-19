@@ -137,7 +137,7 @@ async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-await update.message.reply_text(
+          await update.message.reply_text(
     f"👑 پنل ادمین حرفه‌ای\n\n"
     f"👥 کاربران: {users_count}\n"
     f"⚡ وضعیت: آنلاین\n\n"
