@@ -137,15 +137,15 @@ async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
+await update.message.reply_text(
+    f"👑 پنل ادمین حرفه‌ای\n\n"
+    f"👥 کاربران: {users_count}\n"
+    f"⚡ وضعیت: آنلاین\n\n"
+    "👇 یکی از گزینه‌ها را انتخاب کنید:",
+    reply_markup=reply_markup
+)
 
-    await update.message.reply_text(
-        f"👑 پنل ادمین حرفه‌ای\n\n"
-        f"👥 کاربران: {users_count}\n"
-        f"⚡ وضعیت: آنلاین\n\n"
-        "👇 یکی از گزینه‌ها را انتخاب کنید:",
-        reply_markup=reply_markup
-    )
-    async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     query = update.callback_query
     await query.answer()
@@ -161,20 +161,15 @@ async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if data == "stats":
         cursor.execute("SELECT COUNT(*) FROM users")
         count = cursor.fetchone()[0]
-
-        await query.edit_message_text(
-            f"👥 تعداد کاربران: {count}"
-        )
+        await query.edit_message_text(f"👥 تعداد کاربران: {count}")
 
     elif data == "broadcast":
         await query.edit_message_text(
-            "📢 برای ارسال پیام:\n\n/broadcast متن پیام"
+            "📢 برای ارسال پیام:\n/broadcast متن پیام"
         )
 
     elif data == "reload":
-        await query.edit_message_text(
-            "✅ پنل بروزرسانی شد"
-        )        
+        await query.edit_message_text("🔄 پنل آپدیت شد")  
     # ---------------- Chat ----------------
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -246,8 +241,7 @@ app.add_handler(CommandHandler("stats", stats))
 app.add_handler(CommandHandler("panel", panel))
 app.add_handler(CommandHandler("login", login))
 app.add_handler(CommandHandler("broadcast", broadcast))
-app.add_handler(CallbackQueryHandler(button_handler))app.add_handler(CallbackQueryHandler(button_handler))
-
+app.add_handler(CallbackQueryHandler(button_handler))
 app.add_handler(
     MessageHandler(
         filters.TEXT & ~filters.COMMAND,
