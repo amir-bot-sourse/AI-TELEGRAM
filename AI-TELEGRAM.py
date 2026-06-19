@@ -194,7 +194,8 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         await update.message.reply_text(
             f"❌ خطا:\n{e}"
-        )async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        )
+        async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if (
         update.effective_user.id not in logged_admins
@@ -209,36 +210,7 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             "استفاده:\n/broadcast پیام"
         )
-        returnreturn
-
-    cursor.execute("SELECT user_id FROM users")
-    users_list = cursor.fetchall()
-
-    total = len(users_list)
-    sent = 0
-    failed = 0
-
-    msg = await update.message.reply_text(
-        f"📢 شروع ارسال...\n👥 تعداد: {total}"
-    )
-
-    for user in users_list:
-        try:
-            await context.bot.send_message(
-                chat_id=user[0],
-                text=f"📢 پیام جدید:\n\n{text}"
-            )
-            sent += 1
-
-        except Exception:
-            failed += 1
-
-    await msg.edit_text(
-        f"✅ پایان ارسال\n\n"
-        f"👥 کل: {total}\n"
-        f"✔ ارسال موفق: {sent}\n"
-        f"❌ ناموفق: {failed}"
-    )
+        return
 # ---------------- Run ----------------
 app = Application.builder().token(BOT_TOKEN).build()
 
