@@ -114,12 +114,11 @@ async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ---------------- Commands ----------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    
     save_user(update.effective_user.id)
-    
-if is_banned(update.effective_user.id):
-    return
-    
+
+    if is_banned(update.effective_user.id):
+        return
+
     await update.message.reply_text(
         "🤖 سلام\n\n"
         "من ربات هوش مصنوعی هستم.\n\n"
