@@ -212,6 +212,28 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "استفاده:\n/broadcast پیام"
         )
         return
+        cursor.execute("SELECT user_id FROM users")
+    users_list = cursor.fetchall()
+
+    total = len(users_list)
+    sent = 0
+    failed = 0
+
+    for user in users_list:
+        try:
+            await context.bot.send_message(
+                chat_id=user[0],
+                text=f"📢 پیام جدید:\n\n{text}"
+            )
+            sent += 1
+        except:
+            failed += 1
+
+    await update.message.reply_text(
+        f"✅ پایان ارسال\n\n"
+        f"✔ موفق: {sent}\n"
+        f"❌ ناموفق: {failed}"
+    )
 # ---------------- Run ----------------
 app = Application.builder().token(BOT_TOKEN).build()
 
