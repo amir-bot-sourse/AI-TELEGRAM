@@ -42,6 +42,27 @@ def save_user(user_id):
         (user_id,)
     )
     conn.commit()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS banned_users (
+    user_id INTEGER PRIMARY KEY
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS admins (
+    user_id INTEGER PRIMARY KEY
+)
+""")
+
+conn.commit()
+
+def is_banned(user_id):
+    cursor.execute(
+        "SELECT * FROM banned_users WHERE user_id=?",
+        (user_id,)
+    )
+    return cursor.fetchone() is not None
 # ---------------- AI ----------------
 def ask_ai(text):
     r = requests.post(
@@ -94,7 +115,10 @@ async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ---------------- Commands ----------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     save_user(update.effective_user.id)
-
+    
+if is_banned(update.effective_user.id):
+    return
+    
     await update.message.reply_text(
         "🤖 سلام\n\n"
         "من ربات هوش مصنوعی هستم.\n\n"
@@ -177,6 +201,9 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     save_user(update.effective_user.id) 
+    if is_banned(update.effective_user.id):
+      return
+        
     text = update.message.text
 
     try:
@@ -193,8 +220,8 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     except Exception as e:
         await update.message.reply_text(
-        f"❌ خطا:\n{e}"
-    )
+            f"❌ خطا:\n{e}"
+        )
 
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -235,6 +262,74 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"✔ موفق: {sent}\n"
         f"❌ ناموفق: {failed}"
     )
+
+async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if update.effective_user.id != ADMIN_ID:
+        return
+
+    user_id = int(context.args[0])
+
+    cursor.execute(
+        "INSERT OR IGNORE INTO banned_users VALUES (?)",
+        (user_id,)
+    )
+
+    conn.commit()
+
+    await update.message.reply_text("🚫 بن شد")
+
+
+async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if update.effective_user.id != ADMIN_ID:
+        return
+
+    user_id = int(context.args[0])
+
+    cursor.execute(
+        "DELETE FROM banned_users WHERE user_id=?",
+        (user_id,)
+    )
+
+    conn.commit()
+
+    await update.message.reply_text("✅ آنبن شد")
+
+
+async def sendto(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if update.effective_user.id != ADMIN_ID:
+        return
+
+    if len(context.args) < 2:
+        await update.message.reply_text(
+            "/sendto user_id متن"
+        )
+        return
+
+    user_id = int(context.args[0])
+    text = " ".join(context.args[1:])
+
+    await context.bot.send_message(user_id, text)
+
+    await update.message.reply_text("✅ ارسال شد")
+
+
+async def users_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if update.effective_user.id != ADMIN_ID:
+        return
+
+    cursor.execute("SELECT user_id FROM users")
+
+    txt = ""
+
+    for user in cursor.fetchall():
+        txt += str(user[0]) + "\n"
+
+    await update.message.reply_text(txt[:4000])
+    
 # ---------------- Run ----------------
 app = Application.builder().token(BOT_TOKEN).build()
 
@@ -244,6 +339,10 @@ app.add_handler(CommandHandler("stats", stats))
 app.add_handler(CommandHandler("panel", panel))
 app.add_handler(CommandHandler("login", login))
 app.add_handler(CommandHandler("broadcast", broadcast))
+app.add_handler(CommandHandler("ban", ban))
+app.add_handler(CommandHandler("unban", unban))
+app.add_handler(CommandHandler("sendto", sendto))
+app.add_handler(CommandHandler("users", users_list))
 app.add_handler(CallbackQueryHandler(button_handler))
 app.add_handler(
     MessageHandler(
