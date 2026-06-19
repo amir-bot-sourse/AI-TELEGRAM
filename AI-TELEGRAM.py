@@ -194,8 +194,7 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         await update.message.reply_text(
             f"❌ خطا:\n{e}"
-        )
-        async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        )async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if (
         update.effective_user.id not in logged_admins
@@ -210,7 +209,7 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             "استفاده:\n/broadcast پیام"
         )
-        return
+        returnreturn
 
     cursor.execute("SELECT user_id FROM users")
     users_list = cursor.fetchall()
