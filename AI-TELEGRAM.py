@@ -325,12 +325,12 @@ async def sendto(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = " ".join(context.args[1:])
 
     try:
-    await context.bot.send_message(user_id, text)
-    await update.message.reply_text("✅ ارسال شد")
+        await context.bot.send_message(user_id, text)
+        await update.message.reply_text("✅ ارسال شد")
 
-except Exception as e:
-    await update.message.reply_text(
-        f"❌ خطا:\n{e}"
+    except Exception as e:
+        await update.message.reply_text(
+            f"❌ خطا:\n{e}"
     )
 
 async def users_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
