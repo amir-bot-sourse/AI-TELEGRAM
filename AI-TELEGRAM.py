@@ -271,7 +271,7 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         if len(context.args) != 1:
             await update.message.reply_text("/ban user_id")
-            return
+                 return
 
     user_id = int(context.args[0])
 
@@ -291,7 +291,8 @@ async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if len(context.args) != 1:
-    await update.message.reply_text("/unban user_id")
+        
+        await update.message.reply_text("/unban user_id")
    
     return
     user_id = int(context.args[0])
