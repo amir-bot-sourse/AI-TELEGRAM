@@ -203,6 +203,12 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("⛔ فقط ادمین")
         return
 
+    text = " ".join(context.args)
+
+    if not text:
+        await update.message.reply_text("استفاده:\n/broadcast پیام")
+        return
+
     cursor.execute("SELECT user_id FROM users")
     users_list = cursor.fetchall()
 
