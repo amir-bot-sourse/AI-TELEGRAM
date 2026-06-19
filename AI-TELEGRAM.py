@@ -172,6 +172,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     elif data == "reload":
         await query.edit_message_text("🔄 پنل آپدیت شد")  
+        
     # ---------------- Chat ----------------
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
