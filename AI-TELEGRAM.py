@@ -192,11 +192,12 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(answer[:4000])
 
     except Exception as e:
-        await update.message.reply_text(
-            f"❌ خطا:\n{e}"
-        )
-        async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        f"❌ خطا:\n{e}"
+    )
 
+
+async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if (
         update.effective_user.id not in logged_admins
         and update.effective_user.id != ADMIN_ID
