@@ -114,6 +114,7 @@ async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ---------------- Commands ----------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    
     save_user(update.effective_user.id)
     
 if is_banned(update.effective_user.id):
@@ -267,6 +268,10 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.effective_user.id != ADMIN_ID:
         return
+        
+        if len(context.args) != 1:
+    await update.message.reply_text("/ban user_id")
+    return
 
     user_id = int(context.args[0])
 
@@ -285,6 +290,10 @@ async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
         return
 
+    if len(context.args) != 1:
+    await update.message.reply_text("/unban user_id")
+   
+    return
     user_id = int(context.args[0])
 
     cursor.execute(
@@ -311,10 +320,14 @@ async def sendto(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = int(context.args[0])
     text = " ".join(context.args[1:])
 
+    try:
     await context.bot.send_message(user_id, text)
-
     await update.message.reply_text("✅ ارسال شد")
 
+except Exception as e:
+    await update.message.reply_text(
+        f"❌ خطا:\n{e}"
+    )
 
 async def users_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
