@@ -147,7 +147,7 @@ async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    query = update.callback_query
+        query = update.callback_query
         await query.answer()
 
     user_id = query.from_user.id
