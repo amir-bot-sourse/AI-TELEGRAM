@@ -157,12 +157,13 @@ async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     users_count = cursor.fetchone()[0]
 
     keyboard = [
-        [InlineKeyboardButton("📊 آمار", callback_data="stats")],
-        [InlineKeyboardButton("📢 Broadcast", callback_data="broadcast")],
-        [InlineKeyboardButton("🚫 Ban User", callback_data="ban_menu")],
-        [InlineKeyboardButton("📩 Send Private", callback_data="sendto_menu")],
-        [InlineKeyboardButton("💾 Backup DB", callback_data="backup")],
-        [InlineKeyboardButton("🔄 Reload", callback_data="reload")]
+    [InlineKeyboardButton("📊 آمار آنلاین", callback_data="stats")],
+    [InlineKeyboardButton("👥 لیست کاربران", callback_data="users_list")],
+    [InlineKeyboardButton("🚫 بن کاربر", callback_data="ban_menu")],
+    [InlineKeyboardButton("📩 ارسال پیام", callback_data="sendto_menu")],
+    [InlineKeyboardButton("💾 بکاپ دیتابیس", callback_data="backup")],
+    [InlineKeyboardButton("⚙️ وضعیت ربات", callback_data="status")],
+    [InlineKeyboardButton("🔄 ریست پنل", callback_data="reload")]
     ]
 
     await update.message.reply_text(
@@ -189,24 +190,25 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if data == "stats":
         cursor.execute("SELECT COUNT(*) FROM users")
         count = cursor.fetchone()[0]
-        await query.edit_message_text(f"👥 تعداد کاربران: {count}")
+        await query.edit_message_text(f"👥 کاربران کل: {count}")
 
     # =========================
-    # BROADCAST HELP
+    # USERS LIST (LIMITED)
     # =========================
-    elif data == "broadcast":
-        await query.edit_message_text(
-            "📢 برای ارسال پیام:\n/broadcast متن پیام"
-        )
+    elif data == "users_list":
+        cursor.execute("SELECT user_id FROM users LIMIT 50")
+        users = cursor.fetchall()
+
+        text = "👥 لیست کاربران:\n\n"
+        for u in users:
+            text += f"• {u[0]}\n"
+
+        text += "\n⚠ فقط 50 کاربر اول نمایش داده شد"
+
+        await query.edit_message_text(text)
 
     # =========================
-    # RELOAD
-    # =========================
-    elif data == "reload":
-        await query.edit_message_text("🔄 پنل آپدیت شد")
-
-    # =========================
-    # BACKUP DATABASE
+    # BACKUP
     # =========================
     elif data == "backup":
         try:
@@ -217,36 +219,39 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     caption="💾 بکاپ دیتابیس"
                 )
         except Exception as e:
-            await query.edit_message_text(f"❌ خطا در بکاپ:\n{e}")
+            await query.edit_message_text(f"❌ خطا بکاپ:\n{e}")
 
     # =========================
-    # BAN MENU HELP
+    # STATUS
+    # =========================
+    elif data == "status":
+        cursor.execute("SELECT COUNT(*) FROM users")
+        users = cursor.fetchone()[0]
+
+        await query.edit_message_text(
+            "🤖 وضعیت ربات:\n\n"
+            f"👥 کاربران: {users}\n"
+            "⚡ وضعیت: آنلاین\n"
+            "🔥 سرور: فعال"
+        )
+
+    # =========================
+    # RELOAD
+    # =========================
+    elif data == "reload":
+        await query.edit_message_text("🔄 پنل رفرش شد")
+
+    # =========================
+    # BAN MENU
     # =========================
     elif data == "ban_menu":
-        await query.edit_message_text("🚫 برای بن: /ban user_id")
+        await query.edit_message_text("🚫 بن:\n/ban user_id")
 
     # =========================
-    # SENDTO MENU HELP
+    # SENDTO MENU
     # =========================
     elif data == "sendto_menu":
-        await query.edit_message_text("📩 برای ارسال: /sendto user_id text")
-        
- 
-async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    save_user(update.effective_user.id)
-
-    if is_banned(update.effective_user.id):
-        return
-
-    text = update.message.text
-
-    try:
-        answer = ask_ai(text)
-        await update.message.reply_text(answer[:4000])
-
-    except Exception as e:
-        await update.message.reply_text(f"❌ خطا:\n{e}")
+        await query.edit_message_text("📩 ارسال:\n/sendto user_id text")
 
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
