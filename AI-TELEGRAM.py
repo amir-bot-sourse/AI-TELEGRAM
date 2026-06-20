@@ -381,7 +381,9 @@ print("🤖 Bot Started")
 # FLASK WEBHOOK SERVER
 # =========================
 web = Flask(name)
-@web.route("/") def home(): return "Bot Online"
+@web.route("/")
+def home():
+    return "Bot Online"
 @web.post(f"/{BOT_TOKEN}") def webhook():
 try:
     data = request.get_json(force=True)
