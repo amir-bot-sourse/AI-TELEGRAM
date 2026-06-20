@@ -330,7 +330,22 @@ async def users_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         txt += str(user[0]) + "\n"
 
     await update.message.reply_text(txt[:4000])
-    
+
+     async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    save_user(update.effective_user.id)
+
+    if is_banned(update.effective_user.id):
+        return
+
+    text = update.message.text
+
+    try:
+        answer = ask_ai(text)
+        await update.message.reply_text(answer[:4000])
+
+    except Exception as e:
+        await update.message.reply_text(f"❌ خطا:\n{e}")
 # ---------------- Run ----------------
 import asyncio
 from flask import Flask, request
