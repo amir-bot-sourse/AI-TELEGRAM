@@ -385,47 +385,53 @@ web = Flask(__name__)
 def home():
     return "Bot Online"
 
+
+# =========================
+# WEBHOOK ENDPOINT
+# =========================
 @web.post(f"/{BOT_TOKEN}")
 def webhook():
     try:
-        update = Update.de_json(
-            request.get_json(force=True),
-            app.bot
-        )
+        data = request.get_json(force=True)
+        update = Update.de_json(data, app.bot)
 
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(
-            app.process_update(update)
-        )
-        loop.close()
+        # ❌ NO asyncio.run, NO new event loop
+        import asyncio
+        asyncio.create_task(app.process_update(update))
 
         return "ok"
 
     except Exception as e:
         print("WEBHOOK ERROR:", repr(e))
-        return str(e), 500
+        return "error", 500
 
 
+# =========================
+# SET WEBHOOK ON START
+# =========================
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 
-async def startup():
+async def setup():
     await app.initialize()
     await app.start()
 
-    result = await app.bot.set_webhook(
+    await app.bot.set_webhook(
         url=f"{WEBHOOK_URL}/{BOT_TOKEN}"
     )
 
-    print("Webhook Set =", result)
-    print("Webhook URL =", f"{WEBHOOK_URL}/{BOT_TOKEN}")
+    print("Webhook Set =", WEBHOOK_URL)
 
-asyncio.run(startup())
 
-print("🔥 WEBHOOK MODE")
+import asyncio
+asyncio.run(setup())
 
+print("🔥 WEBHOOK MODE STARTED")
+
+# =========================
+# START FLASK
+# =========================
 web.run(
     host="0.0.0.0",
     port=int(os.environ.get("PORT", 10000)),
     use_reloader=False
-    )
+)
