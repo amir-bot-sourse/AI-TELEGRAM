@@ -349,7 +349,6 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             f"❌ خطا:\n{e}"
     )
-)
 # ---------------- Run ----------------
 import asyncio
 from flask import Flask, request
