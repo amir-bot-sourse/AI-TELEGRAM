@@ -343,6 +343,13 @@ async def users_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(txt[:4000])
     
 # ---------------- Run ----------------
+import asyncio
+from flask import Flask, request
+from telegram import Update
+
+# =========================
+# BOT APP
+# =========================
 app = Application.builder().token(BOT_TOKEN).build()
 
 app.add_handler(CommandHandler("start", start))
@@ -365,27 +372,23 @@ app.add_handler(
 
 print("🤖 Bot Started")
 
+# =========================
+# FLASK WEBHOOK SERVER
+# =========================
 web = Flask(__name__)
 
 @web.route("/")
 def home():
     return "Bot Online"
 
-
-# =========================
-# WEBHOOK (FIXED - NO CRASH)
-# =========================
 @web.post(f"/{BOT_TOKEN}")
 def webhook():
     try:
         data = request.get_json(force=True)
         update = Update.de_json(data, app.bot)
 
-        import asyncio
-
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-
         loop.run_until_complete(app.process_update(update))
 
         return "ok"
@@ -394,12 +397,11 @@ def webhook():
         print("WEBHOOK ERROR:", repr(e))
         return "ok", 200
 
+
 # =========================
-# SET WEBHOOK
+# STARTUP WEBHOOK SETUP
 # =========================
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
-
-import asyncio
 
 async def setup():
     await app.initialize()
@@ -409,15 +411,17 @@ async def setup():
         url=f"{WEBHOOK_URL}/{BOT_TOKEN}"
     )
 
-    print("Webhook Set =", WEBHOOK_URL)
+    print("🔥 WEBHOOK SET OK")
+    print("URL:", WEBHOOK_URL)
 
 
+# فقط یک بار اجرا میشه
 asyncio.run(setup())
 
 print("🔥 WEBHOOK MODE STARTED")
 
 # =========================
-# START SERVER
+# RUN SERVER
 # =========================
 web.run(
     host="0.0.0.0",
