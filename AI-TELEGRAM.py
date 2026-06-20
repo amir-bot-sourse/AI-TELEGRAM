@@ -417,6 +417,12 @@ asyncio.run(setup_webhook())
 print("WEBHOOK REGISTER FINISHED")
 print("🔥 WEBHOOK MODE")
 
+print("TEST TEST TEST")
+
+web.run(
+    host="0.0.0.0",
+    port=int(os.environ.get("PORT", 10000))
+)
 web.run(
     host="0.0.0.0",
     port=int(os.environ.get("PORT", 10000))
