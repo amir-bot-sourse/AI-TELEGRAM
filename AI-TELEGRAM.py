@@ -387,7 +387,7 @@ def home():
 
 
 # =========================
-# WEBHOOK ENDPOINT
+# WEBHOOK (FIXED - NO CRASH)
 # =========================
 @web.post(f"/{BOT_TOKEN}")
 def webhook():
@@ -395,21 +395,30 @@ def webhook():
         data = request.get_json(force=True)
         update = Update.de_json(data, app.bot)
 
-        # ❌ NO asyncio.run, NO new event loop
         import asyncio
-        asyncio.create_task(app.process_update(update))
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        loop.run_until_complete(
+            app.process_update(update)
+        )
+
+        loop.close()
 
         return "ok"
 
     except Exception as e:
         print("WEBHOOK ERROR:", repr(e))
-        return "error", 500
+        return "ok", 200   # مهم: تلگرام نباید 500 بگیرد
 
 
 # =========================
-# SET WEBHOOK ON START
+# SET WEBHOOK
 # =========================
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+
+import asyncio
 
 async def setup():
     await app.initialize()
@@ -422,13 +431,12 @@ async def setup():
     print("Webhook Set =", WEBHOOK_URL)
 
 
-import asyncio
 asyncio.run(setup())
 
 print("🔥 WEBHOOK MODE STARTED")
 
 # =========================
-# START FLASK
+# START SERVER
 # =========================
 web.run(
     host="0.0.0.0",
