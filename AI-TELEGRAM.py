@@ -370,6 +370,7 @@ app.add_handler(
         chat
     )
 )
+
 print("🤖 Bot Started")
 
 web = Flask(__name__)
@@ -380,30 +381,26 @@ def home():
 
 @web.post(f"/{BOT_TOKEN}")
 def webhook():
+    try:
+        update = Update.de_json(
+            request.get_json(force=True),
+            app.bot
+        )
 
-    update = Update.de_json(
-        request.get_json(force=True),
-        app.bot
-    )
+        asyncio.run(app.process_update(update))
 
-    asyncio.run(
-        app.process_update(update)
-    )
+        return "ok"
 
-    return "ok"
+    except Exception as e:
+        print("WEBHOOK ERROR:", e)
+        return str(e), 500
 
-
-print("🔥 WEBHOOK MODE")
-
-web.run(
-    host="0.0.0.0",
-    port=int(os.environ.get("PORT", 10000))
-)
 
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 
-async def setup_webhook():
+async def startup():
     await app.initialize()
+    await app.start()
 
     result = await app.bot.set_webhook(
         url=f"{WEBHOOK_URL}/{BOT_TOKEN}"
@@ -412,22 +409,12 @@ async def setup_webhook():
     print("Webhook Set =", result)
     print("Webhook URL =", f"{WEBHOOK_URL}/{BOT_TOKEN}")
 
-asyncio.run(setup_webhook())
+asyncio.run(startup())
 
-print("WEBHOOK REGISTER FINISHED")
 print("🔥 WEBHOOK MODE")
 
-print("TEST TEST TEST")
-
 web.run(
     host="0.0.0.0",
-    port=int(os.environ.get("PORT", 10000))
-)
-web.run(
-    host="0.0.0.0",
-    port=int(os.environ.get("PORT", 10000))
+    port=int(os.environ.get("PORT", 10000)),
+    use_reloader=False
     )
-
-asyncio.run(app.initialize())
-asyncio.run(setup_webhook())
-
