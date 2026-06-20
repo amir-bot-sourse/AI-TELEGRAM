@@ -150,33 +150,41 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    user_id = update.effective_user.id
-
-    if user_id not in logged_admins and user_id != ADMIN_ID:
-        await update.message.reply_text("⛔ دسترسی نداری")
+    if update.effective_user.id != ADMIN_ID:
         return
 
     cursor.execute("SELECT COUNT(*) FROM users")
     users_count = cursor.fetchone()[0]
 
     keyboard = [
-        [InlineKeyboardButton("📊 آمار کاربران", callback_data="stats")],
+        [InlineKeyboardButton("📊 آمار", callback_data="stats")],
         [InlineKeyboardButton("📢 Broadcast", callback_data="broadcast")],
+        [InlineKeyboardButton("🚫 Ban User", callback_data="ban_menu")],
+        [InlineKeyboardButton("📩 Send Private", callback_data="sendto_menu")],
+        [InlineKeyboardButton("💾 Backup DB", callback_data="backup")],
         [InlineKeyboardButton("🔄 Reload", callback_data="reload")]
     ]
 
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
     await update.message.reply_text(
-        f"👑 پنل ادمین حرفه‌ای\n\n"
-        f"👥 کاربران: {users_count}\n"
-        f"⚡ وضعیت: آنلاین\n\n"
-        "👇 یکی از گزینه‌ها را انتخاب کنید:",
-        reply_markup=reply_markup
+        f"👑 پنل PRO\n\n👥 کاربران: {users_count}",
+        reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    elif data == "backup":
+    with open("users.db", "rb") as f:
+        await context.bot.send_document(
+            chat_id=query.message.chat_id,
+            document=f,
+            caption="💾 بکاپ دیتابیس"
+        )
 
+elif data == "ban_menu":
+    await query.edit_message_text("🚫 برای بن: /ban user_id")
+
+elif data == "sendto_menu":
+    await query.edit_message_text("📩 برای ارسال: /sendto user_id text")
+    
     query = update.callback_query
     await query.answer()
 
@@ -212,26 +220,11 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
 
     try:
-        from telegram.constants import ChatAction
-
-        await context.bot.send_chat_action(
-            chat_id=update.effective_chat.id,
-            action=ChatAction.TYPING
-        )
-
-        answer = await asyncio.to_thread(
-            ask_ai,
-            text
-        )
-
-        await update.message.reply_text(
-            answer[:4000]
-        )
+        answer = ask_ai(text)
+        await update.message.reply_text(answer[:4000])
 
     except Exception as e:
-        await update.message.reply_text(
-            f"❌ خطا:\n{e}"
-        )
+        await update.message.reply_text(f"❌ خطا:\n{e}")
 
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -277,12 +270,9 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.effective_user.id != ADMIN_ID:
         return
-        
-        if len(context.args) != 1:
-            
-            
-             await update.message.reply_text("/ban user_id")
-            
+
+    if len(context.args) != 1:
+        await update.message.reply_text("/ban user_id")
         return
 
     user_id = int(context.args[0])
@@ -291,7 +281,6 @@ async def ban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "INSERT OR IGNORE INTO banned_users VALUES (?)",
         (user_id,)
     )
-
     conn.commit()
 
     await update.message.reply_text("🚫 بن شد")
@@ -303,21 +292,18 @@ async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if len(context.args) != 1:
-        
         await update.message.reply_text("/unban user_id")
-   
-    return
+        return
+
     user_id = int(context.args[0])
 
     cursor.execute(
         "DELETE FROM banned_users WHERE user_id=?",
         (user_id,)
     )
-
     conn.commit()
 
     await update.message.reply_text("✅ آنبن شد")
-
 
 async def sendto(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -400,18 +386,13 @@ def webhook():
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
-        loop.run_until_complete(
-            app.process_update(update)
-        )
-
-        loop.close()
+        loop.run_until_complete(app.process_update(update))
 
         return "ok"
 
     except Exception as e:
         print("WEBHOOK ERROR:", repr(e))
-        return "ok", 200   # مهم: تلگرام نباید 500 بگیرد
-
+        return "ok", 200
 
 # =========================
 # SET WEBHOOK
