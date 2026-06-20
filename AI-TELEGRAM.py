@@ -318,31 +318,37 @@ async def sendto(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def users_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
-if update.effective_user.id != ADMIN_ID:
-    return
 
-cursor.execute("SELECT user_id FROM users")
+    if update.effective_user.id != ADMIN_ID:
+        return
 
-txt = ""
+    cursor.execute("SELECT user_id FROM users")
 
-for user in cursor.fetchall():
-    txt += f"{user[0]}\n"
+    txt = ""
 
-await update.message.reply_text(txt[:4000]) 
+    for user in cursor.fetchall():
+        txt += str(user[0]) + "\n"
 
-async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE): save_user(update.effective_user.id)
-if is_banned(update.effective_user.id):
-    return
+    await update.message.reply_text(txt[:4000])
 
-text = update.message.text
 
-try:
-    answer = ask_ai(text)
-    await update.message.reply_text(answer[:4000])
+async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-except Exception as e:
-    await update.message.reply_text(
-        f"❌ خطا:\n{e}"
+    save_user(update.effective_user.id)
+
+    if is_banned(update.effective_user.id):
+        return
+
+    text = update.message.text
+
+    try:
+        answer = ask_ai(text)
+        await update.message.reply_text(answer[:4000])
+
+    except Exception as e:
+        await update.message.reply_text(
+            f"❌ خطا:\n{e}"
+    )
 )
 # ---------------- Run ----------------
 import asyncio
@@ -355,7 +361,12 @@ from telegram import Update
 app = Application.builder().token(BOT_TOKEN).build()
 app.add_handler(CommandHandler("start", start)) app.add_handler(CommandHandler("help", help_cmd)) app.add_handler(CommandHandler("stats", stats)) app.add_handler(CommandHandler("panel", panel)) app.add_handler(CommandHandler("login", login)) app.add_handler(CommandHandler("broadcast", broadcast)) app.add_handler(CommandHandler("ban", ban)) app.add_handler(CommandHandler("unban", unban)) app.add_handler(CommandHandler("sendto", sendto)) app.add_handler(CommandHandler("users", users_list))
 app.add_handler(CallbackQueryHandler(button_handler))
-app.add_handler( MessageHandler( filters.TEXT & ~filters.COMMAND, chat ) )
+app.add_handler(
+    MessageHandler(
+        filters.TEXT & ~filters.COMMAND,
+        chat
+    )
+)
 print("🤖 Bot Started")
 
 # =========================
