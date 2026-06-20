@@ -171,20 +171,7 @@ async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    elif data == "backup":
-    with open("users.db", "rb") as f:
-        await context.bot.send_document(
-            chat_id=query.message.chat_id,
-            document=f,
-            caption="💾 بکاپ دیتابیس"
-        )
 
-elif data == "ban_menu":
-    await query.edit_message_text("🚫 برای بن: /ban user_id")
-
-elif data == "sendto_menu":
-    await query.edit_message_text("📩 برای ارسال: /sendto user_id text")
-    
     query = update.callback_query
     await query.answer()
 
@@ -196,18 +183,53 @@ elif data == "sendto_menu":
 
     data = query.data
 
+    # =========================
+    # STATS
+    # =========================
     if data == "stats":
         cursor.execute("SELECT COUNT(*) FROM users")
         count = cursor.fetchone()[0]
         await query.edit_message_text(f"👥 تعداد کاربران: {count}")
 
+    # =========================
+    # BROADCAST HELP
+    # =========================
     elif data == "broadcast":
         await query.edit_message_text(
             "📢 برای ارسال پیام:\n/broadcast متن پیام"
         )
 
+    # =========================
+    # RELOAD
+    # =========================
     elif data == "reload":
-        await query.edit_message_text("🔄 پنل آپدیت شد")  
+        await query.edit_message_text("🔄 پنل آپدیت شد")
+
+    # =========================
+    # BACKUP DATABASE
+    # =========================
+    elif data == "backup":
+        try:
+            with open("users.db", "rb") as f:
+                await context.bot.send_document(
+                    chat_id=query.message.chat_id,
+                    document=f,
+                    caption="💾 بکاپ دیتابیس"
+                )
+        except Exception as e:
+            await query.edit_message_text(f"❌ خطا در بکاپ:\n{e}")
+
+    # =========================
+    # BAN MENU HELP
+    # =========================
+    elif data == "ban_menu":
+        await query.edit_message_text("🚫 برای بن: /ban user_id")
+
+    # =========================
+    # SENDTO MENU HELP
+    # =========================
+    elif data == "sendto_menu":
+        await query.edit_message_text("📩 برای ارسال: /sendto user_id text")
         
  
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
