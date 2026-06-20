@@ -331,7 +331,7 @@ async def users_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(txt[:4000])
     
-    async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         save_user(update.effective_user.id)
 
@@ -370,7 +370,6 @@ app.add_handler(CallbackQueryHandler(button_handler))
 app.add_handler(
     MessageHandler(
         filters.TEXT & ~filters.COMMAND,
-        chat
     )
 )
 
