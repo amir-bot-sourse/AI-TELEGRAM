@@ -331,7 +331,6 @@ async def users_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(txt[:4000])
 
-
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     save_user(update.effective_user.id)
@@ -358,8 +357,18 @@ from telegram import Update
 # BOT APP
 # =========================
 app = Application.builder().token(BOT_TOKEN).build()
-app.add_handler(CommandHandler("start", start)) app.add_handler(CommandHandler("help", help_cmd)) app.add_handler(CommandHandler("stats", stats)) app.add_handler(CommandHandler("panel", panel)) app.add_handler(CommandHandler("login", login)) app.add_handler(CommandHandler("broadcast", broadcast)) app.add_handler(CommandHandler("ban", ban)) app.add_handler(CommandHandler("unban", unban)) app.add_handler(CommandHandler("sendto", sendto)) app.add_handler(CommandHandler("users", users_list))
+app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("help", help_cmd))
+app.add_handler(CommandHandler("stats", stats))
+app.add_handler(CommandHandler("panel", panel))
+app.add_handler(CommandHandler("login", login))
+app.add_handler(CommandHandler("broadcast", broadcast))
+app.add_handler(CommandHandler("ban", ban))
+app.add_handler(CommandHandler("unban", unban))
+app.add_handler(CommandHandler("sendto", sendto))
+app.add_handler(CommandHandler("users", users_list))
 app.add_handler(CallbackQueryHandler(button_handler))
+
 app.add_handler(
     MessageHandler(
         filters.TEXT & ~filters.COMMAND,
