@@ -318,35 +318,32 @@ async def sendto(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def users_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
+if update.effective_user.id != ADMIN_ID:
+    return
 
-    if update.effective_user.id != ADMIN_ID:
-        return
+cursor.execute("SELECT user_id FROM users")
 
-    cursor.execute("SELECT user_id FROM users")
+txt = ""
 
-    txt = ""
+for user in cursor.fetchall():
+    txt += f"{user[0]}\n"
 
-    for user in cursor.fetchall():
-        txt += str(user[0]) + "\n"
+await update.message.reply_text(txt[:4000]) 
 
-    await update.message.reply_text(txt[:4000])
-    
+async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE): save_user(update.effective_user.id)
+if is_banned(update.effective_user.id):
+    return
 
-async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
+text = update.message.text
 
-    save_user(update.effective_user.id)
+try:
+    answer = ask_ai(text)
+    await update.message.reply_text(answer[:4000])
 
-    if is_banned(update.effective_user.id):
-        return
-
-    text = update.message.text
-
-    try:
-        answer = ask_ai(text)
-        await update.message.reply_text(answer[:4000])
-
-    except Exception as e:
-        await update.message.reply_text(f"❌ خطا:\n{e}")
+except Exception as e:
+    await update.message.reply_text(
+        f"❌ خطا:\n{e}"
+)
 # ---------------- Run ----------------
 import asyncio
 from flask import Flask, request
@@ -356,70 +353,55 @@ from telegram import Update
 # BOT APP
 # =========================
 app = Application.builder().token(BOT_TOKEN).build()
-
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("help", help_cmd))
-app.add_handler(CommandHandler("stats", stats))
-app.add_handler(CommandHandler("panel", panel))
-app.add_handler(CommandHandler("login", login))
-app.add_handler(CommandHandler("broadcast", broadcast))
-app.add_handler(CommandHandler("ban", ban))
-app.add_handler(CommandHandler("unban", unban))
-app.add_handler(CommandHandler("sendto", sendto))
-app.add_handler(CommandHandler("users", users_list))
+app.add_handler(CommandHandler("start", start)) app.add_handler(CommandHandler("help", help_cmd)) app.add_handler(CommandHandler("stats", stats)) app.add_handler(CommandHandler("panel", panel)) app.add_handler(CommandHandler("login", login)) app.add_handler(CommandHandler("broadcast", broadcast)) app.add_handler(CommandHandler("ban", ban)) app.add_handler(CommandHandler("unban", unban)) app.add_handler(CommandHandler("sendto", sendto)) app.add_handler(CommandHandler("users", users_list))
 app.add_handler(CallbackQueryHandler(button_handler))
-app.add_handler(
-    MessageHandler(
-        filters.TEXT & ~filters.COMMAND,
-    )
-)
-
+app.add_handler( MessageHandler( filters.TEXT & ~filters.COMMAND, chat ) )
 print("🤖 Bot Started")
 
 # =========================
 # FLASK WEBHOOK SERVER
 # =========================
-web = Flask(__name__)
+web = Flask(name)
+@web.route("/") def home(): return "Bot Online"
+@web.post(f"/{BOT_TOKEN}") def webhook():
+try:
+    data = request.get_json(force=True)
 
-@web.route("/")
-def home():
-    return "Bot Online"
+    update = Update.de_json(
+        data,
+        app.bot
+    )
 
-@web.post(f"/{BOT_TOKEN}")
-def webhook():
-    try:
-        data = request.get_json(force=True)
-        update = Update.de_json(data, app.bot)
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
 
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(app.process_update(update))
+    loop.run_until_complete(
+        app.process_update(update)
+    )
 
-        return "ok"
+    loop.close()
 
-    except Exception as e:
-        print("WEBHOOK ERROR:", repr(e))
-        return "ok", 200
+    return "ok"
 
-
+except Exception as e:
+    print("WEBHOOK ERROR:", repr(e))
+    return "ok", 200
 # =========================
 # STARTUP WEBHOOK SETUP
 # =========================
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
-
 async def setup():
-    await app.initialize()
-    await app.start()
+await app.initialize()
+await app.start()
 
-    await app.bot.set_webhook(
-        url=f"{WEBHOOK_URL}/{BOT_TOKEN}"
-    )
+await app.bot.set_webhook(
+    url=f"{WEBHOOK_URL}/{BOT_TOKEN}"
+)
 
-    print("🔥 WEBHOOK SET OK")
-    print("URL:", WEBHOOK_URL)
-
-
-# فقط یک بار اجرا میشه
+print("🔥 WEBHOOK SET OK")
+print("URL =", f"{WEBHOOK_URL}/{BOT_TOKEN}")
+asyncio.run(setup())
+print("🔥 WEBHOOK MODE STARTED")# فقط یک بار اجرا میشه
 asyncio.run(setup())
 
 print("🔥 WEBHOOK MODE STARTED")
@@ -427,8 +409,4 @@ print("🔥 WEBHOOK MODE STARTED")
 # =========================
 # RUN SERVER
 # =========================
-web.run(
-    host="0.0.0.0",
-    port=int(os.environ.get("PORT", 10000)),
-    use_reloader=False
-)
+web.run( host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), use_reloader=False )
