@@ -387,12 +387,17 @@ def webhook():
             app.bot
         )
 
-        asyncio.run(app.process_update(update))
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(
+            app.process_update(update)
+        )
+        loop.close()
 
         return "ok"
 
     except Exception as e:
-        print("WEBHOOK ERROR:", e)
+        print("WEBHOOK ERROR:", repr(e))
         return str(e), 500
 
 
