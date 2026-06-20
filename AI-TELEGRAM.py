@@ -220,6 +220,8 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         answer = ask_ai(text)
 
+await update.message.reply_text(answer[:4000])
+
         await update.message.reply_text(answer[:4000])
 
     except Exception as e:
