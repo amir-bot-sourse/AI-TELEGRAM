@@ -204,10 +204,11 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
  
 async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    save_user(update.effective_user.id) 
+    save_user(update.effective_user.id)
+
     if is_banned(update.effective_user.id):
-      return
-        
+        return
+
     text = update.message.text
 
     try:
@@ -218,11 +219,14 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
             action=ChatAction.TYPING
         )
 
-        answer = ask_ai(text)
+        answer = await asyncio.to_thread(
+            ask_ai,
+            text
+        )
 
-await update.message.reply_text(answer[:4000])
-
-        await update.message.reply_text(answer[:4000])
+        await update.message.reply_text(
+            answer[:4000]
+        )
 
     except Exception as e:
         await update.message.reply_text(
