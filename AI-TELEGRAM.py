@@ -403,8 +403,23 @@ web.run(
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 
 async def setup_webhook():
-    await app.bot.set_webhook(
+    await app.initialize()
+
+    result = await app.bot.set_webhook(
         url=f"{WEBHOOK_URL}/{BOT_TOKEN}"
+    )
+
+    print("Webhook Set =", result)
+    print("Webhook URL =", f"{WEBHOOK_URL}/{BOT_TOKEN}")
+
+asyncio.run(setup_webhook())
+
+print("WEBHOOK REGISTER FINISHED")
+print("🔥 WEBHOOK MODE")
+
+web.run(
+    host="0.0.0.0",
+    port=int(os.environ.get("PORT", 10000))
     )
 
 asyncio.run(app.initialize())
