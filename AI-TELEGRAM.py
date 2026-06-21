@@ -3,6 +3,8 @@ from threading import Thread
 from telegram import Update
 from flask import Flask,request
 import asyncio
+import traceback
+import logging
 import json
 import os
 import requests
@@ -18,6 +20,8 @@ from telegram.ext import (
     ContextTypes,
     filters
 )
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 if "RENDER" in os.environ:
     import os
@@ -399,11 +403,14 @@ print("🤖 Bot Started")
 # =========================
 # FLASK WEBHOOK SERVER
 # =========================
-web = Flask(name)
 @web.route("/")
 def home():
     return "Bot Online"
-@web.post(f"/{BOT_TOKEN}") def webhook():
+
+
+@web.post(f"/{BOT_TOKEN}")
+def webhook():
+    
 try:
     data = request.get_json(force=True)
 
