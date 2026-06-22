@@ -316,7 +316,6 @@ try:
 
 except Exception as e:
     await update.message.reply_text(f"❌ خطا:\n{e}")
-
 async def users_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.effective_user.id != ADMIN_ID:
