@@ -300,26 +300,22 @@ async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def sendto(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    if update.effective_user.id != ADMIN_ID:
-        return
+if update.effective_user.id != ADMIN_ID:
+    return
 
-    if len(context.args) < 2:
-        await update.message.reply_text(
-            "/sendto user_id متن"
-        )
-        return
+if len(context.args) < 2:
+    await update.message.reply_text("/sendto user_id متن")
+    return
 
-    user_id = int(context.args[0])
-    text = " ".join(context.args[1:])
+user_id = int(context.args[0])
+text = " ".join(context.args[1:])
 
-    try:
-        await context.bot.send_message(user_id, text)
-        await update.message.reply_text("✅ ارسال شد")
+try:
+    await context.bot.send_message(user_id, text)
+    await update.message.reply_text("✅ ارسال شد")
 
 except Exception as e:
-    await update.message.reply_text(
-        f"❌ خطا:\n{e}"
-    )
+    await update.message.reply_text(f"❌ خطا:\n{e}")
 
 async def users_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
