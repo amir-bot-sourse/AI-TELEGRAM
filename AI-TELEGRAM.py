@@ -400,9 +400,10 @@ app.add_handler(
 )
 print("🤖 Bot Started")
 
-# =========================
-# FLASK WEBHOOK SERVER
-# =========================
+from flask import Flask, request
+
+web = Flask(__name__)
+
 @web.route("/")
 def home():
     return "Bot Online"
