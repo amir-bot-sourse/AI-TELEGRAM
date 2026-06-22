@@ -299,7 +299,8 @@ async def unban(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("✅ آنبن شد")
 
 async def sendto(update: Update, context: ContextTypes.DEFAULT_TYPE):
-                 if update.effective_user.id != ADMIN_ID:
+
+if update.effective_user.id != ADMIN_ID:
     return
 
 if len(context.args) < 2:
@@ -315,10 +316,6 @@ try:
 
 except Exception as e:
     await update.message.reply_text(f"❌ خطا:\n{e}")
-async def sendto(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    if update.effective_user.id != ADMIN_ID:
-        return
 
     cursor.execute("SELECT user_id FROM users")
 
