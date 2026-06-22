@@ -316,9 +316,9 @@ async def sendto(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(user_id, text)
         await update.message.reply_text("✅ ارسال شد")
 
-    except Exception as e:
-        await update.message.reply_text(
-            f"❌ خطا:\n{e}"
+except Exception as e:
+    await update.message.reply_text(
+        f"❌ خطا:\n{e}"
     )
 
 async def users_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -369,9 +369,10 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(answer[:4000])
 
     except Exception:
-        logger.error(f"Error for user {user_id}:\n{traceback.format_exc()}")
-        await update.message.reply_text("❌ خطایی رخ داد. لطفاً دوباره تلاش کنید.")
-        # ---------------- Run ----------------
+    logger.error(...)
+    await update.message.reply_text("❌ خطایی رخ داد. لطفاً دوباره تلاش کنید.")
+
+# ---------------- Run ----------------
 import asyncio
 from flask import Flask, request
 from telegram import Update
@@ -430,7 +431,7 @@ def webhook():
         return "ok"
 
     except Exception as e:
-        print("WEBHOOK ERROR:", e)
+        print("WEBHOOK ERROR:", repr(e))
         return "ok", 200
 # =========================
 # STARTUP WEBHOOK SETUP
