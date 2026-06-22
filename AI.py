@@ -440,10 +440,12 @@ async def setup():
     )
 
     print("🔥 WEBHOOK SET OK")
+    print("URL =", f"{WEBHOOK_URL}/{BOT_TOKEN}")
 
-print("🔥 WEBHOOK SET OK")
-print("URL =", f"{WEBHOOK_URL}/{BOT_TOKEN}")
+
 asyncio.run(setup())
+
+print("🔥 WEBHOOK MODE STARTED")
 print("🔥 WEBHOOK MODE STARTED")# فقط یک بار اجرا میشه
 asyncio.run(setup())
 
