@@ -435,23 +435,24 @@ def webhook():
 # STARTUP WEBHOOK SETUP
 # =========================
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+
 async def setup():
-await app.initialize()
-await app.start()
+    await app.initialize()
+    await app.start()
 
-await app.bot.set_webhook(
-    url=f"{WEBHOOK_URL}/{BOT_TOKEN}"
-)
+    await app.bot.set_webhook(
+        url=f"{WEBHOOK_URL}/{BOT_TOKEN}"
+    )
 
-print("🔥 WEBHOOK SET OK")
-print("URL =", f"{WEBHOOK_URL}/{BOT_TOKEN}")
-asyncio.run(setup())
-print("🔥 WEBHOOK MODE STARTED")# فقط یک بار اجرا میشه
+    print("🔥 WEBHOOK SET OK")
+    print("URL =", f"{WEBHOOK_URL}/{BOT_TOKEN}")
+
 asyncio.run(setup())
 
 print("🔥 WEBHOOK MODE STARTED")
 
-# =========================
-# RUN SERVER
-# =========================
-web.run( host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), use_reloader=False )
+web.run(
+    host="0.0.0.0",
+    port=int(os.environ.get("PORT", 10000)),
+    use_reloader=False
+)
