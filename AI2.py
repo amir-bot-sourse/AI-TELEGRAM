@@ -409,14 +409,22 @@ def home():
 
 @web.post(f"/{BOT_TOKEN}")
 def webhook():
-    data = request.get_json(force=True)
-    update = Update.de_json(data, app.bot)
+    try:
+        data = request.get_json(force=True)
 
-  loop = asyncio.new_event_loop()
-  asyncio.set_event_loop(loop)
-  loop.run_until_complete(app.process_update(update))
+        update = Update.de_json(
+            data,
+            app.bot
+        )
 
-    return "ok"
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        loop.run_until_complete(
+            app.process_update(update)
+        )
+
+        return "ok"
 
     except Exception as e:
         print("WEBHOOK ERROR:", e)
