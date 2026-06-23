@@ -399,6 +399,9 @@ print("🤖 Bot Started")
 # =========================
 # FLASK WEBHOOK SERVER
 # =========================
+web = Flask(__name__)
+
+
 @web.route("/")
 def home():
     return "Bot Online"
@@ -406,23 +409,16 @@ def home():
 
 @web.post(f"/{BOT_TOKEN}")
 def webhook():
+    data = request.get_json(force=True)
+    update = Update.de_json(data, app.bot)
 
-    try:
-        data = request.get_json(force=True)
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+  asyncio.set_event_loop(loop)
 
-        update = Update.de_json(
-            data,
-            app.bot
-        )
+loop.run_until_complete(app.process_update(update))
 
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-        loop.run_until_complete(
-            app.process_update(update)
-        )
-
-        return "ok"
+    return "ok"
 
     except Exception as e:
         print("WEBHOOK ERROR:", e)
