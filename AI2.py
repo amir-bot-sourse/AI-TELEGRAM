@@ -439,8 +439,8 @@ async def setup():
     print("URL =", f"{WEBHOOK_URL}/{BOT_TOKEN}")
 
 asyncio.run(setup())
-print("🔥 WEBHOOK MODE STARTED")
 
+print("🔥 WEBHOOK MODE STARTED")
 # =========================
 # RUN SERVER
 # =========================
