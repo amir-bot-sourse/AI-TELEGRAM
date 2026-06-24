@@ -413,13 +413,24 @@ def test():
 
 @web.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
-    print("🔥🔥🔥 WEBHOOK HIT FLASK 🔥🔥🔥", flush=True)
+    try:
+        data = request.get_json(force=True)
 
-    data = request.get_json(force=True)
+        print("🔥 UPDATE RECEIVED", flush=True)
 
-    print(data, flush=True)
+        update = Update.de_json(data, app.bot)
 
-    return "OK"
+        asyncio.run(
+            app.process_update(update)
+        )
+
+        print("✅ UPDATE PROCESSED", flush=True)
+
+        return "OK"
+
+    except Exception as e:
+        print("❌ ERROR:", e, flush=True)
+        return "ERROR", 500
 
 @web.route("/routes")
 def routes():
