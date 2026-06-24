@@ -411,18 +411,12 @@ def test():
 
 @web.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
-    
     try:
         data = request.get_json(force=True)
 
-        update = Update.de_json(
-            data,
-            app.bot
-        )
+        update = Update.de_json(data, app.bot)
 
-        asyncio.run(
-            app.process_update(update)
-        )
+        asyncio.run(app.process_update(update))
 
         return "ok"
 
