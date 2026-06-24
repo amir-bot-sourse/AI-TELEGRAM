@@ -409,25 +409,15 @@ def home():
 def test():
     return "TEST OK"
 
-@web.route(f"/{BOT_TOKEN}", methods=["POST"])
+@web.route(f"/{BOT_TOKEN}", methods=["GET", "POST"])
 def webhook():
-    try:
-        data = request.get_json(force=True)
-
-        update = Update.de_json(data, app.bot)
-
-        asyncio.run(app.process_update(update))
-
-        return "ok"
-
-    except Exception as e:
-        print("WEBHOOK ERROR:", e)
-        return "ok", 200
+    return "WEBHOOK OK"
 # =========================
 # STARTUP WEBHOOK SETUP
 # =========================
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 
+print("TOKEN =", BOT_TOKEN)
 async def setup():
     await app.initialize()
 
