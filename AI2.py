@@ -72,7 +72,11 @@ def is_banned(user_id):
     )
     return cursor.fetchone() is not None
 # ---------------- AI ----------------
+import time
+
 def ask_ai(text):
+    start = time.time()
+
     r = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
         headers={
@@ -88,6 +92,8 @@ def ask_ai(text):
         },
         timeout=60
     )
+
+    print("AI TIME =", time.time() - start, flush=True)
 
     data = r.json()
 
