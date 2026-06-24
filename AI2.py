@@ -427,6 +427,7 @@ def webhook():
 # STARTUP WEBHOOK SETUP
 # =========================
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+
 async def setup():
     await app.initialize()
 
@@ -438,7 +439,6 @@ async def setup():
     print("URL =", f"{WEBHOOK_URL}/{BOT_TOKEN}")
 
 asyncio.run(setup())
-
 print("🔥 WEBHOOK MODE STARTED")
 
 # =========================
