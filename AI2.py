@@ -405,7 +405,7 @@ print("INITIAL MAP =", web.url_map)
 
 @web.route("/")
 def home():
-    return "HOME OK VERSION 999"
+    return "HOME VERSION 999"
 
 @web.route("/test")
 def test():
