@@ -401,14 +401,17 @@ print("🤖 Bot Started")
 # =========================
 web = Flask(__name__)
 
-
 @web.route("/")
 def home():
     return "Bot Online"
 
+@web.route("/test")
+def test():
+    return "TEST OK"
 
-@web.post(f"/{BOT_TOKEN}")
+@web.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
+    
     try:
         data = request.get_json(force=True)
 
