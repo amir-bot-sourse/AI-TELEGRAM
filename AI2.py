@@ -412,6 +412,10 @@ def test():
 @web.route(f"/{BOT_TOKEN}", methods=["GET", "POST"])
 def webhook():
     return "WEBHOOK OK"
+
+@web.route("/routes")
+def routes():
+    return str(web.url_map)
 # =========================
 # STARTUP WEBHOOK SETUP
 # =========================
