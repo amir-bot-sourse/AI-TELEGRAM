@@ -415,21 +415,16 @@ def test():
 def webhook():
     try:
         data = request.get_json(force=True)
-
-        print("🔥 UPDATE RECEIVED", flush=True)
-
         update = Update.de_json(data, app.bot)
 
         asyncio.run(
             app.process_update(update)
         )
 
-        print("✅ UPDATE PROCESSED", flush=True)
-
         return "OK"
 
     except Exception as e:
-        print("❌ ERROR:", e, flush=True)
+        print("ERROR:", e, flush=True)
         return "ERROR", 500
 
 @web.route("/routes")
