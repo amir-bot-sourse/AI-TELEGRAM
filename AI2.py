@@ -403,7 +403,7 @@ web = Flask(__name__)
 
 @web.route("/")
 def home():
-    return "Bot Online"
+    return "HOME OK"
 
 @web.route("/test")
 def test():
