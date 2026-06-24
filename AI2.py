@@ -405,7 +405,7 @@ print("INITIAL MAP =", web.url_map)
 
 @web.route("/")
 def home():
-    return "HOME OK"
+    return "HOME OK VERSION 999"
 
 @web.route("/test")
 def test():
@@ -417,7 +417,7 @@ def webhook():
 
 @web.route("/routes")
 def routes():
-    return str(web.url_map)
+    return "ROUTES VERSION 999" 
 
 print("FINAL MAP =", web.url_map)
 # =========================
