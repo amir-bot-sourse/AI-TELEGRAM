@@ -371,7 +371,7 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 import asyncio
 from flask import Flask, request
 from telegram import Update
-
+print("##### VERSION TEST 12345 #####")
 # =========================
 # BOT APP
 # =========================
