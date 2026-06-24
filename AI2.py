@@ -413,8 +413,11 @@ def test():
 
 @web.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
-    print("🔥 WEBHOOK HIT")
-    print(request.get_json())
+    print("🔥🔥🔥 WEBHOOK HIT FLASK 🔥🔥🔥", flush=True)
+
+    data = request.get_json(force=True)
+
+    print(data, flush=True)
 
     return "OK"
 
