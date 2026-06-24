@@ -411,13 +411,16 @@ def home():
 def test():
     return "TEST OK"
 
-@web.route(f"/{BOT_TOKEN}", methods=["GET", "POST"])
+@web.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
-    return "WEBHOOK OK"
+    print("🔥 WEBHOOK HIT")
+    print(request.get_json())
+
+    return "OK"
 
 @web.route("/routes")
 def routes():
-    return "ROUTES VERSION 999" 
+    return "ROUTES VERSION 999"
 
 print("FINAL MAP =", web.url_map)
 # =========================
