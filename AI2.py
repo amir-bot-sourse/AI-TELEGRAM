@@ -121,6 +121,9 @@ async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
 # ---------------- Commands ----------------
+async def ping(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("pong")
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     save_user(update.effective_user.id)
 
@@ -378,6 +381,7 @@ print("##### VERSION TEST 12345 #####")
 app = Application.builder().token(BOT_TOKEN).build()
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("help", help_cmd))
+app.add_handler(CommandHandler("ping", ping))
 app.add_handler(CommandHandler("stats", stats))
 app.add_handler(CommandHandler("panel", panel))
 app.add_handler(CommandHandler("login", login))
