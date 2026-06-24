@@ -400,7 +400,7 @@ print("🤖 Bot Started")
 # FLASK WEBHOOK SERVER
 # =========================
 web = Flask(__name__)
-
+print("BOT_TOKEN =", BOT_TOKEN)
 @web.route("/")
 def home():
     return "HOME OK"
