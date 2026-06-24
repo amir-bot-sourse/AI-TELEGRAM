@@ -400,7 +400,9 @@ print("🤖 Bot Started")
 # FLASK WEBHOOK SERVER
 # =========================
 web = Flask(__name__)
-print("BOT_TOKEN =", BOT_TOKEN)
+
+print("INITIAL MAP =", web.url_map)
+
 @web.route("/")
 def home():
     return "HOME OK"
@@ -416,6 +418,8 @@ def webhook():
 @web.route("/routes")
 def routes():
     return str(web.url_map)
+
+print("FINAL MAP =", web.url_map)
 # =========================
 # STARTUP WEBHOOK SETUP
 # =========================
