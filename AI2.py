@@ -424,18 +424,15 @@ def test():
     return "TEST OK"
 
 @web.route(f"/{BOT_TOKEN}", methods=["POST"])
-@web.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
     try:
         data = request.get_json(force=True)
+
         update = Update.de_json(data, app.bot)
 
-        future = asyncio.run_coroutine_threadsafe(
-            app.process_update(update),
-            main_loop
+        asyncio.run(
+            app.process_update(update)
         )
-
-        future.result(timeout=30)
 
         return "OK"
 
