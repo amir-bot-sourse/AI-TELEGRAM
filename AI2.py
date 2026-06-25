@@ -95,11 +95,12 @@ def ask_ai(text):
     )
 
     print("AI TIME =", time.time() - start, flush=True)
+data = r.json()
 
-    data = r.json()
+print("OPENROUTER RESPONSE =", data, flush=True)
 
-    if "choices" not in data:
-        return f"❌ API ERROR:\n{data}"
+if "choices" not in data:
+    return f"❌ API ERROR:\n{data}"
 
     return data["choices"][0]["message"]["content"]
 
@@ -423,21 +424,25 @@ def test():
     return "TEST OK"
 
 @web.route(f"/{BOT_TOKEN}", methods=["POST"])
+@web.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
     try:
         data = request.get_json(force=True)
         update = Update.de_json(data, app.bot)
 
-        asyncio.run(
-            app.process_update(update)
+        future = asyncio.run_coroutine_threadsafe(
+            app.process_update(update),
+            main_loop
         )
+
+        future.result(timeout=30)
 
         return "OK"
 
     except Exception as e:
         print("ERROR:", e, flush=True)
         return "ERROR", 500
-
+        
 @web.route("/routes")
 def routes():
     return "ROUTES VERSION 999"
@@ -451,6 +456,7 @@ WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 print("TOKEN =", BOT_TOKEN)
 async def setup():
     await app.initialize()
+    await app.start()
 
     await app.bot.set_webhook(
         url=f"{WEBHOOK_URL}/{BOT_TOKEN}"
@@ -460,8 +466,6 @@ async def setup():
     print("URL =", f"{WEBHOOK_URL}/{BOT_TOKEN}")
 
 asyncio.run(setup())
-
-print("🔥 WEBHOOK MODE STARTED")
 # =========================
 # RUN SERVER
 # =========================
