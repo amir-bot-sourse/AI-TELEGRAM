@@ -67,16 +67,6 @@ def save_user(user_id):
 
     conn.commit()
 
-def save_user(user_id):
-    print("SAVE USER =", user_id, flush=True)
-
-    cursor.execute(
-        "INSERT OR IGNORE INTO users (user_id) VALUES (?)",
-        (user_id,)
-    )
-
-    conn.commit()
-
 def is_banned(user_id):
     cursor.execute(
         "SELECT * FROM banned_users WHERE user_id=?",
