@@ -76,6 +76,7 @@ def is_banned(user_id):
 import time
 
 def ask_ai(text):
+def ask_ai(text):
     start = time.time()
 
     r = requests.post(
@@ -104,7 +105,6 @@ def ask_ai(text):
         return f"❌ API ERROR:\n{data}"
 
     return data["choices"][0]["message"]["content"]
-
 async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.effective_user.id != ADMIN_ID:
