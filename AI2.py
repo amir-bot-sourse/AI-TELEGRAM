@@ -364,7 +364,7 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         save_user(user_id)
-    except Exception:
+    except:
         pass
 
     if is_banned(user_id):
@@ -381,15 +381,13 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         answer = await asyncio.to_thread(ask_ai, text)
 
-        if not answer:
-            return
+        if answer:
+            await update.message.reply_text(answer[:4000])
 
-        await update.message.reply_text(answer[:4000])
-
-    except Exception:
-        logger.error(f"Error for user {user_id}:\n{traceback.format_exc()}")
-        await update.message.reply_text("❌ خطایی رخ داد. لطفاً دوباره تلاش کنید.")
-        # ---------------- Run ----------------
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc(), flush=True)
+# ---------------- Run ----------------
 import asyncio
 from flask import Flask, request
 from telegram import Update
