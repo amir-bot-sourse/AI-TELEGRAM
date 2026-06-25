@@ -453,7 +453,6 @@ WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 print("TOKEN =", BOT_TOKEN)
 async def setup():
     await app.initialize()
-    await app.start()
 
     await app.bot.set_webhook(
         url=f"{WEBHOOK_URL}/{BOT_TOKEN}"
