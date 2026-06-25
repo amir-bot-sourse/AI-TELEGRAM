@@ -43,15 +43,6 @@ CREATE TABLE IF NOT EXISTS users (
 )
 """)
 
-conn.commit()
-
-def save_user(user_id):
-    cursor.execute(
-        "INSERT OR IGNORE INTO users (user_id) VALUES (?)",
-        (user_id,)
-    )
-    conn.commit()
-
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS banned_users (
     user_id INTEGER PRIMARY KEY
@@ -65,6 +56,26 @@ CREATE TABLE IF NOT EXISTS admins (
 """)
 
 conn.commit()
+
+def save_user(user_id):
+    print("SAVE USER =", user_id, flush=True)
+
+    cursor.execute(
+        "INSERT OR IGNORE INTO users (user_id) VALUES (?)",
+        (user_id,)
+    )
+
+    conn.commit()
+
+def save_user(user_id):
+    print("SAVE USER =", user_id, flush=True)
+
+    cursor.execute(
+        "INSERT OR IGNORE INTO users (user_id) VALUES (?)",
+        (user_id,)
+    )
+
+    conn.commit()
 
 def is_banned(user_id):
     cursor.execute(
@@ -166,14 +177,21 @@ async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
+    if update.effective_user.id != ADMIN_ID:
+        return
+
     cursor.execute("SELECT COUNT(*) FROM users")
-    count = cursor.fetchone()[0]
+    users_count = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM banned_users")
+    banned_count = cursor.fetchone()[0]
 
     await update.message.reply_text(
-        f"👥 تعداد کاربران: {count}"
+        f"🤖 وضعیت ربات\n\n"
+        f"👥 کاربران: {users_count}\n"
+        f"🚫 بن شده‌ها: {banned_count}"
     )
-
-
+    
 async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.effective_user.id != ADMIN_ID:
