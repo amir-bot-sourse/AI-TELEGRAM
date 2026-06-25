@@ -95,12 +95,13 @@ def ask_ai(text):
     )
 
     print("AI TIME =", time.time() - start, flush=True)
-data = r.json()
 
-print("OPENROUTER RESPONSE =", data, flush=True)
+    data = r.json()
 
-if "choices" not in data:
-    return f"❌ API ERROR:\n{data}"
+    print("OPENROUTER RESPONSE =", data, flush=True)
+
+    if "choices" not in data:
+        return f"❌ API ERROR:\n{data}"
 
     return data["choices"][0]["message"]["content"]
 
