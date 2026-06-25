@@ -74,36 +74,47 @@ def is_banned(user_id):
     return cursor.fetchone() is not None
 # ---------------- AI ----------------
 import time
+import requests
 
 def ask_ai(text):
-    start = time.time()
+    try:
+        start = time.time()
 
-    r = requests.post(
-        "https://openrouter.ai/api/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json"
-        },
-        json={
-            "model": "openai/gpt-4o-mini",
-            "messages": [
-                {"role": "system", "content": "تو یک دستیار فارسی حرفه‌ای هستی"},
-                {"role": "user", "content": text}
-            ]
-        },
-        timeout=60
-    )
+        r = requests.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "openai/gpt-4o-mini",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "تو یک دستیار فارسی حرفه‌ای هستی"
+                    },
+                    {
+                        "role": "user",
+                        "content": text
+                    }
+                ]
+            },
+            timeout=60
+        )
 
-    print("AI TIME =", time.time() - start, flush=True)
+        print("AI TIME =", time.time() - start, flush=True)
+        print("STATUS =", r.status_code, flush=True)
+        print("RESPONSE =", r.text[:1000], flush=True)
 
-    data = r.json()
+        data = r.json()
 
-    print("OPENROUTER RESPONSE =", data, flush=True)
+        if "choices" not in data:
+            return f"❌ API ERROR:\n{data}"
 
-    if "choices" not in data:
-        return f"❌ API ERROR:\n{data}"
+        return data["choices"][0]["message"]["content"]
 
-    return data["choices"][0]["message"]["content"]
+    except Exception as e:
+        return f"❌ ERROR:\n{e}"
 async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.effective_user.id != ADMIN_ID:
