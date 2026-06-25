@@ -76,7 +76,6 @@ def is_banned(user_id):
 import time
 
 def ask_ai(text):
-def ask_ai(text):
     start = time.time()
 
     r = requests.post(
