@@ -437,11 +437,15 @@ def webhook():
     try:
         data = request.get_json(force=True)
 
+        print("UPDATE RECEIVED", flush=True)
+
         update = Update.de_json(data, app.bot)
 
         asyncio.run(
             app.process_update(update)
         )
+
+        print("UPDATE PROCESSED", flush=True)
 
         return "OK"
 
