@@ -1,23 +1,59 @@
 import sqlite3
-from datetime import datetime
-
-
-DB = "database/users.db"
-
 import os
-import sqlite3
 
-DB_DIR = "database"
-DB_PATH = os.path.join(DB_DIR, "users.db")
 
-os.makedirs(DB_DIR, exist_ok=True)
+os.makedirs("database", exist_ok=True)
+
 
 conn = sqlite3.connect(
-    DB_PATH,
+    "database/users.db",
     check_same_thread=False
 )
 
 cursor = conn.cursor()
+
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS users(
+    user_id INTEGER PRIMARY KEY,
+    first_name TEXT,
+    username TEXT,
+    join_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_activity TIMESTAMP,
+    message_count INTEGER DEFAULT 0,
+    is_vip INTEGER DEFAULT 0,
+    is_banned INTEGER DEFAULT 0
+)
+""")
+
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS banned_users(
+    user_id INTEGER PRIMARY KEY
+)
+""")
+
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS admins(
+    user_id INTEGER PRIMARY KEY
+)
+""")
+
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS memory(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    message TEXT,
+    answer TEXT,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
+
+
+conn.commit()
+
 
 
 def save_user(user_id, first_name, username):
@@ -25,11 +61,7 @@ def save_user(user_id, first_name, username):
     cursor.execute(
         """
         INSERT OR IGNORE INTO users
-        (
-            user_id,
-            first_name,
-            username
-        )
+        (user_id, first_name, username)
         VALUES (?, ?, ?)
         """,
         (
@@ -40,78 +72,3 @@ def save_user(user_id, first_name, username):
     )
 
     conn.commit()
-
-
-
-def update_activity(user_id):
-
-    cursor.execute(
-        """
-        UPDATE users
-        SET last_activity = ?
-        WHERE user_id = ?
-        """,
-        (
-            datetime.now(),
-            user_id
-        )
-    )
-
-    conn.commit()
-
-
-
-def increase_messages(user_id):
-
-    cursor.execute(
-        """
-        UPDATE users
-        SET message_count = message_count + 1
-        WHERE user_id = ?
-        """,
-        (user_id,)
-    )
-
-    conn.commit()
-
-
-
-def get_user(user_id):
-
-    cursor.execute(
-        """
-        SELECT *
-        FROM users
-        WHERE user_id = ?
-        """,
-        (user_id,)
-    )
-
-    return cursor.fetchone()
-
-
-
-def get_users_count():
-
-    cursor.execute(
-        """
-        SELECT COUNT(*)
-        FROM users
-        """
-    )
-
-    return cursor.fetchone()[0]
-
-
-
-def get_all_users():
-
-    cursor.execute(
-        """
-        SELECT *
-        FROM users
-        ORDER BY join_date DESC
-        """
-    )
-
-    return cursor.fetchall()
