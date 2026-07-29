@@ -13,8 +13,8 @@ def home():
 
     return "AI Telegram Bot Running"
 
-
 @app.route("/webhook", methods=["POST"])
+@app.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
 
     data = request.get_json()
