@@ -4,9 +4,16 @@ from datetime import datetime
 
 DB = "database/users.db"
 
+import os
+import sqlite3
+
+DB_DIR = "database"
+DB_PATH = os.path.join(DB_DIR, "users.db")
+
+os.makedirs(DB_DIR, exist_ok=True)
 
 conn = sqlite3.connect(
-    DB,
+    DB_PATH,
     check_same_thread=False
 )
 
