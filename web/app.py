@@ -1,19 +1,14 @@
 from flask import Flask, request
 from telegram import Update
-import asyncio
-
-from config import BOT_TOKEN
 from bot import application
+from config import BOT_TOKEN
+import asyncio
 
 
 app = Flask(__name__)
 
 
-async def init_bot():
-    await application.initialize()
-
-
-asyncio.run(init_bot())
+initialized = False
 
 
 @app.route("/", methods=["GET"])
@@ -21,18 +16,34 @@ def home():
     return "AI Telegram Bot Running"
 
 
+async def init_application():
+
+    global initialized
+
+    if not initialized:
+
+        await application.initialize()
+        initialized = True
+
+
+
 @app.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
 
     data = request.get_json()
 
-    update = Update.de_json(
-        data,
-        application.bot
-    )
+    async def process():
 
-    asyncio.run(
-        application.process_update(update)
-    )
+        await init_application()
+
+        update = Update.de_json(
+            data,
+            application.bot
+        )
+
+        await application.process_update(update)
+
+
+    asyncio.run(process())
 
     return "OK"
