@@ -1,6 +1,5 @@
 from flask import Flask, request
 from telegram import Update
-
 import asyncio
 
 from config import BOT_TOKEN
@@ -8,6 +7,13 @@ from bot import application
 
 
 app = Flask(__name__)
+
+
+async def init_bot():
+    await application.initialize()
+
+
+asyncio.run(init_bot())
 
 
 @app.route("/", methods=["GET"])
