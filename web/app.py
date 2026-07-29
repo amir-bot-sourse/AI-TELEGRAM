@@ -1,3 +1,4 @@
+from config import BOT_TOKEN
 from flask import Flask, request
 from telegram import Update
 
