@@ -72,3 +72,26 @@ def save_user(user_id, first_name, username):
     )
 
     conn.commit()
+
+def update_activity(user_id):
+    cursor.execute(
+        """
+        UPDATE users
+        SET last_activity = CURRENT_TIMESTAMP
+        WHERE user_id = ?
+        """,
+        (user_id,)
+    )
+    conn.commit()
+
+
+def increase_messages(user_id):
+    cursor.execute(
+        """
+        UPDATE users
+        SET message_count = message_count + 1
+        WHERE user_id = ?
+        """,
+        (user_id,)
+    )
+    conn.commit()
