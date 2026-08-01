@@ -1,49 +1,64 @@
 from flask import Flask, request
 from telegram import Update
-from bot import application
-from config import BOT_TOKEN
 import asyncio
+import threading
+
+from bot import application
 
 
 app = Flask(__name__)
 
 
-initialized = False
+loop = asyncio.new_event_loop()
 
 
-@app.route("/", methods=["GET"])
+def start_loop():
+    asyncio.set_event_loop(loop)
+    loop.run_forever()
+
+
+threading.Thread(
+    target=start_loop,
+    daemon=True
+).start()
+
+
+
+async def init_bot():
+
+    await application.initialize()
+    await application.start()
+
+
+asyncio.run_coroutine_threadsafe(
+    init_bot(),
+    loop
+)
+
+
+
+@app.route("/")
 def home():
     return "AI Telegram Bot Running"
 
 
-async def init_application():
 
-    global initialized
+@app.route("/webhook", methods=["POST"])
+@app.route("/<token>", methods=["POST"])
+def webhook(token=None):
 
-    if not initialized:
+    data = request.get_json(force=True)
 
-        await application.initialize()
-        initialized = True
-
-
-
-@app.route(f"/{BOT_TOKEN}", methods=["POST"])
-def webhook():
-
-    data = request.get_json()
-
-    async def process():
-
-        await init_application()
-
-        update = Update.de_json(
-            data,
-            application.bot
-        )
-
-        await application.process_update(update)
+    update = Update.de_json(
+        data,
+        application.bot
+    )
 
 
-    asyncio.run(process())
+    asyncio.run_coroutine_threadsafe(
+        application.process_update(update),
+        loop
+    )
+
 
     return "OK"

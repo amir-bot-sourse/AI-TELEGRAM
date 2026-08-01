@@ -74,16 +74,71 @@ def save_user(user_id, first_name, username):
     conn.commit()
 
 def update_activity(user_id):
+
     cursor.execute(
         """
         UPDATE users
-        SET last_activity = CURRENT_TIMESTAMP
-        WHERE user_id = ?
+        SET last_activity=CURRENT_TIMESTAMP
+        WHERE user_id=?
         """,
         (user_id,)
     )
+
     conn.commit()
 
+
+
+def increase_messages(user_id):
+
+    cursor.execute(
+        """
+        UPDATE users
+        SET message_count = message_count + 1
+        WHERE user_id=?
+        """,
+        (user_id,)
+    )
+
+    conn.commit()
+
+
+
+def save_memory(user_id, message, answer):
+
+    cursor.execute(
+        """
+        INSERT INTO memory
+        (user_id, message, answer)
+        VALUES (?, ?, ?)
+        """,
+        (
+            user_id,
+            message,
+            answer
+        )
+    )
+
+    conn.commit()
+
+
+
+def get_memory(user_id, limit=10):
+
+    cursor.execute(
+        """
+        SELECT message, answer
+        FROM memory
+        WHERE user_id=?
+        ORDER BY id DESC
+        LIMIT ?
+        """,
+        (
+            user_id,
+            limit
+        )
+    )
+
+    return cursor.fetchall()
 
 def increase_messages(user_id):
     cursor.execute(
@@ -94,4 +149,32 @@ def increase_messages(user_id):
         """,
         (user_id,)
     )
+    conn.commit()
+
+def update_activity(user_id):
+
+    cursor.execute(
+        """
+        UPDATE users
+        SET last_activity=CURRENT_TIMESTAMP
+        WHERE user_id=?
+        """,
+        (user_id,)
+    )
+
+    conn.commit()
+
+
+
+def increase_messages(user_id):
+
+    cursor.execute(
+        """
+        UPDATE users
+        SET message_count = message_count + 1
+        WHERE user_id=?
+        """,
+        (user_id,)
+    )
+
     conn.commit()
