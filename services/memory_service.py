@@ -1,69 +1,26 @@
-import sqlite3
-
-DB = "database/users.db"
+from database import cursor, conn
 
 
-def init_memory():
-
-    conn = sqlite3.connect(DB)
-
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS memory(
-
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-        user_id INTEGER,
-
-        role TEXT,
-
-        message TEXT
-
-    )
-    """)
-
-    conn.commit()
-
-    conn.close()
-
-
-def save_message(user_id, role, message):
-
-    conn = sqlite3.connect(DB)
-
-    cursor = conn.cursor()
-
+def save_memory(user_id, message, answer):
     cursor.execute(
         """
-        INSERT INTO memory(
-            user_id,
-            role,
-            message
-        )
-        VALUES(?,?,?)
+        INSERT INTO memory(user_id, message, answer)
+        VALUES (?, ?, ?)
         """,
         (
             user_id,
-            role,
-            message
+            message,
+            answer
         )
     )
 
     conn.commit()
 
-    conn.close()
-
 
 def load_memory(user_id, limit=10):
-
-    conn = sqlite3.connect(DB)
-
-    cursor = conn.cursor()
-
     cursor.execute(
         """
-        SELECT role,message
+        SELECT message, answer
         FROM memory
         WHERE user_id=?
         ORDER BY id DESC
@@ -77,8 +34,23 @@ def load_memory(user_id, limit=10):
 
     rows = cursor.fetchall()
 
-    conn.close()
-
     rows.reverse()
 
-    return rows
+    history = []
+
+    for message, answer in rows:
+        history.append(
+            {
+                "role": "user",
+                "content": message
+            }
+        )
+
+        history.append(
+            {
+                "role": "assistant",
+                "content": answer
+            }
+        )
+
+    return history

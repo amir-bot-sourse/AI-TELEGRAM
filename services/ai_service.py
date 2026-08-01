@@ -8,48 +8,48 @@ MODEL = "openai/gpt-4o-mini"
 URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
-def ask_ai(message: str) -> str:
+def ask_ai(message, history=None):
 
-    if not OPENROUTER_API_KEY:
-        return "❌ OPENROUTER_API_KEY تنظیم نشده است."
+    if not API_KEY:
+        return "کلید هوش مصنوعی تنظیم نشده است."
+
+    url = "https://openrouter.ai/api/v1/chat/completions"
 
     headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://render.com",
-        "X-Title": "AI Telegram Bot"
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
     }
 
-    payload = {
-        "model": MODEL,
-        "messages": [
-            {
-                "role": "user",
-                "content": message
-            }
-        ]
+    messages = []
+
+    if history:
+        messages.extend(history)
+
+    messages.append(
+        {
+            "role": "user",
+            "content": message
+        }
+    )
+
+    data = {
+        "model": "openai/gpt-4o-mini",
+        "messages": messages
     }
 
     try:
 
-        response = requests.post(
-            URL,
+        r = requests.post(
+            url,
             headers=headers,
-            json=payload,
+            json=data,
             timeout=60
         )
 
-        response.raise_for_status()
+        result = r.json()
 
-        data = response.json()
-
-        return data["choices"][0]["message"]["content"]
-
-    except requests.exceptions.Timeout:
-        return "⌛ زمان پاسخگویی هوش مصنوعی به پایان رسید."
-
-    except requests.exceptions.HTTPError:
-        return f"❌ خطای سرور OpenRouter:\n{response.text}"
+        return result["choices"][0]["message"]["content"]
 
     except Exception as e:
-        return f"❌ {e}"
+
+        return str(e)
