@@ -1,55 +1,43 @@
-import os
 import requests
-
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-
-MODEL = "openai/gpt-4o-mini"
-
-URL = "https://openrouter.ai/api/v1/chat/completions"
+from config import OPENROUTER_API_KEY
 
 
-def ask_ai(message, history=None):
+def ask_ai(message):
 
-    if not API_KEY:
-        return "کلید هوش مصنوعی تنظیم نشده است."
+    if not OPENROUTER_API_KEY:
+        return "❌ OPENROUTER_API_KEY تنظیم نشده است."
 
     url = "https://openrouter.ai/api/v1/chat/completions"
 
     headers = {
-        "Authorization": f"Bearer {API_KEY}",
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json"
     }
 
-    messages = []
-
-    if history:
-        messages.extend(history)
-
-    messages.append(
-        {
-            "role": "user",
-            "content": message
-        }
-    )
-
     data = {
         "model": "openai/gpt-4o-mini",
-        "messages": messages
+        "messages": [
+            {
+                "role": "user",
+                "content": message
+            }
+        ]
     }
 
     try:
 
-        r = requests.post(
+        response = requests.post(
             url,
             headers=headers,
             json=data,
             timeout=60
         )
 
-        result = r.json()
+        response.raise_for_status()
+
+        result = response.json()
 
         return result["choices"][0]["message"]["content"]
 
     except Exception as e:
-
-        return str(e)
+        return f"❌ AI Error:\n{e}"
