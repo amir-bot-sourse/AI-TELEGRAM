@@ -1,15 +1,15 @@
-from telegram.ext import Application
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    MessageHandler,
+    filters,
+)
 
 from config import BOT_TOKEN
 
 from handlers.start import start
 from handlers.chat import chat
-
-from telegram.ext import (
-    CommandHandler,
-    MessageHandler,
-    filters
-)
+from handlers.panel import panel
 
 
 application = (
@@ -20,6 +20,7 @@ application = (
 )
 
 
+# /start
 application.add_handler(
     CommandHandler(
         "start",
@@ -27,7 +28,15 @@ application.add_handler(
     )
 )
 
+# /panel
+application.add_handler(
+    CommandHandler(
+        "panel",
+        panel
+    )
+)
 
+# پیام‌های معمولی
 application.add_handler(
     MessageHandler(
         filters.TEXT & ~filters.COMMAND,
