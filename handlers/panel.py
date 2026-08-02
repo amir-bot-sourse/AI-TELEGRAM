@@ -1,40 +1,79 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
-
-from config import ADMIN_ID
 
 
 async def panel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    if update.effective_user.id != ADMIN_ID:
-        await update.message.reply_text("⛔ شما ادمین نیستید.")
-        return
-
     keyboard = [
 
         [
-            InlineKeyboardButton("📊 آمار", callback_data="stats"),
-            InlineKeyboardButton("👥 کاربران", callback_data="users")
+            InlineKeyboardButton(
+                "🧠 Memory",
+                callback_data="memory"
+            )
         ],
 
         [
-            InlineKeyboardButton("🧠 حافظه", callback_data="memory"),
-            InlineKeyboardButton("📢 Broadcast", callback_data="broadcast")
+            InlineKeyboardButton(
+                "📊 Statistics",
+                callback_data="stats"
+            )
         ],
 
         [
-            InlineKeyboardButton("⭐ VIP", callback_data="vip"),
-            InlineKeyboardButton("🚫 Ban", callback_data="ban")
+            InlineKeyboardButton(
+                "👑 VIP Users",
+                callback_data="vip"
+            )
         ],
 
         [
-            InlineKeyboardButton("⚙ تنظیمات", callback_data="settings"),
-            InlineKeyboardButton("📜 لاگ‌ها", callback_data="logs")
+            InlineKeyboardButton(
+                "⚙️ Settings",
+                callback_data="settings"
+            )
         ]
 
     ]
 
+
     await update.message.reply_text(
-        "🤖 پنل مدیریت AI Telegram",
+        "🤖 AI Management Panel",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
+
+
+
+async def panel_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    query = update.callback_query
+
+    await query.answer()
+
+
+    if query.data == "memory":
+
+        await query.edit_message_text(
+            "🧠 Memory Service\n\nذخیره و بازیابی اطلاعات کاربران فعال است."
+        )
+
+
+    elif query.data == "stats":
+
+        await query.edit_message_text(
+            "📊 Statistics\n\nدر حال اتصال به دیتابیس..."
+        )
+
+
+    elif query.data == "vip":
+
+        await query.edit_message_text(
+            "👑 VIP System\n\nمدیریت کاربران ویژه آماده توسعه است."
+        )
+
+
+    elif query.data == "settings":
+
+        await query.edit_message_text(
+            "⚙️ Settings\n\nتنظیمات ربات."
+        )

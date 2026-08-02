@@ -2,14 +2,15 @@ from telegram.ext import (
     Application,
     CommandHandler,
     MessageHandler,
-    filters,
+    CallbackQueryHandler,
+    filters
 )
 
 from config import BOT_TOKEN
 
 from handlers.start import start
 from handlers.chat import chat
-from handlers.panel import panel
+from handlers.panel import panel, panel_button
 
 
 application = (
@@ -20,7 +21,7 @@ application = (
 )
 
 
-# /start
+# شروع
 application.add_handler(
     CommandHandler(
         "start",
@@ -28,7 +29,8 @@ application.add_handler(
     )
 )
 
-# /panel
+
+# پنل
 application.add_handler(
     CommandHandler(
         "panel",
@@ -36,7 +38,16 @@ application.add_handler(
     )
 )
 
-# پیام‌های معمولی
+
+# دکمه های پنل
+application.add_handler(
+    CallbackQueryHandler(
+        panel_button
+    )
+)
+
+
+# پیام های معمولی
 application.add_handler(
     MessageHandler(
         filters.TEXT & ~filters.COMMAND,
